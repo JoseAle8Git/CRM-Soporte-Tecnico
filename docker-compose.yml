@@ -32,7 +32,7 @@ services:
       # Ejecuta scripts SQL: Mapea nuestra carpeta de scripts (en el host)
       # a la carpeta de inicialización de PostgreSQL (/docker-entrypoint-initdb.d).
       # Cualquier .sql o .sh en esta carpeta se ejecuta al iniciar el contenedor por primera vez.
-      - ./backend/src/main/resources/db/migration:/docker-entrypoint-initdb.d
+      - ./backend/crmSoporteTecnico/crmSoporteTecnico/src/main/resources/db/migration:/docker-entrypoint-initdb.d
       
 # Sección de Volúmenes: Define el volumen persistente (db-data)
 volumes:

@@ -1,0 +1,47 @@
+#########################
+# 1. Configuración de IDE y Sistema
+#########################
+# Ignorar archivos temporales y de configuración de sistema
+.DS_Store             # Archivos de metadatos de macOS
+Thumbs.db             # Archivos de vista previa de Windows
+
+#########################
+# 2. Dependencias y Compilación Java/Maven (Backend)
+#########################
+/backend/target/      # Directorio de compilación de Maven (clases compiladas, JARs)
+/backend/pom.xml.tag  # Archivos de conflicto de Maven
+/backend/pom.xml.versionsBackup
+/backend/*.jar        # Archivos JAR compilados
+/backend/*.war        # Archivos WAR compilados
+
+#########################
+# 3. Dependencias y Compilación Node/Angular (Frontend)
+#########################
+/frontend/node_modules/ # Directorio de dependencias de Node
+/frontend/dist/         # Directorio de salida de la compilación de Angular
+/frontend/.angular/     # Caché del CLI de Angular
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+
+#########################
+# 4. Archivos de Entorno de Spring (Propiedades Sensibles)
+#########################
+# Configuración de Spring Boot que contiene secretos (contraseñas, claves JWT)
+/backend/src/main/resources/application*.properties
+/backend/src/main/resources/application*.yml
+
+#########################
+# 5. Entorno de Docker
+#########################
+# Datos persistentes creados por Docker Compose (el volumen db-data)
+db-data/
+# Archivos de registro y caché de Docker
+*.log
+*.tmp
+
+#########################
+# 6. Claves de Seguridad
+#########################
+# Si generas claves JWT o certificados, deben ignorarse
+*.key
+*.pem
