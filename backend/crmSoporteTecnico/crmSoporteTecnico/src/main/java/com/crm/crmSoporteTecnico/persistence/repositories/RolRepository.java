@@ -14,9 +14,9 @@ public interface RolRepository extends JpaRepository<Rol, Long> {
 
     /**
      * Encuentra un rol por su nombre.
-     * @param rolName
+     * @param name
      * @return
      */
-    Optional<Rol> findByRolName(String rolName);
+    Optional<Rol> findByName(String name);
 
 }
