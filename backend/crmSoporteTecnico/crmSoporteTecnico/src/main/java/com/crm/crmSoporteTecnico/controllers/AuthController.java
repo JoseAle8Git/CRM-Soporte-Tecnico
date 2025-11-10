@@ -1,6 +1,6 @@
 package com.crm.crmSoporteTecnico.controllers;
 
-import com.crm.crmSoporteTecnico.persistence.entities.User;
+import com.crm.crmSoporteTecnico.persistence.entities.AppUser;
 import com.crm.crmSoporteTecnico.services.IAuthService;
 import com.crm.crmSoporteTecnico.services.models.dtos.AuthResponse;
 import com.crm.crmSoporteTecnico.services.models.dtos.LoginRequest;
@@ -37,9 +37,10 @@ public class AuthController {
      */
     @PostMapping("/login")
     public ResponseEntity<?> login (@Valid @RequestBody LoginRequest request, HttpServletResponse response) {
+        System.out.println("Login request: " + request.username());
         try {
             // Autenticar el usuario y obtener el objeto user.
-            User user = authService.authenticate(request.username(), request.password());
+            AppUser user = authService.authenticate(request.username(), request.password());
 
             // Genera el token JWT.
             String token = authService.generateToken(user.getUsername());

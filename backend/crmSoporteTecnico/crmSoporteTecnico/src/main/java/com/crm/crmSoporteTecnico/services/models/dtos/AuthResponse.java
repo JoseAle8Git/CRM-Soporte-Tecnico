@@ -1,6 +1,6 @@
 package com.crm.crmSoporteTecnico.services.models.dtos;
 
-import com.crm.crmSoporteTecnico.persistence.entities.User;
+import com.crm.crmSoporteTecnico.persistence.entities.AppUser;
 
 /**
  * DTO para enviar la información del usuario al Frontend tras el login.
@@ -16,7 +16,7 @@ public record AuthResponse(
      * @param user
      * @return
      */
-    public static AuthResponse fromUser(User user) {
+    public static AuthResponse fromUser(AppUser user) {
         return new AuthResponse(
                 user.getId(),
                 user.getUsername(),

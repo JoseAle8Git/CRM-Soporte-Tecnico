@@ -1,6 +1,6 @@
 package com.crm.crmSoporteTecnico.persistence.repositories;
 
-import com.crm.crmSoporteTecnico.persistence.entities.User;
+import com.crm.crmSoporteTecnico.persistence.entities.AppUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,14 +10,14 @@ import java.util.Optional;
  * Interfaz que representa el repositorio de user.
  */
 @Repository
-public interface UserRepository extends JpaRepository<User,Integer> {
+public interface UserRepository extends JpaRepository<AppUser,Long> {
 
     /**
      * Buscar un Usuario por su username para el Login/Autenticación.
      * @param username
      * @return
      */
-    Optional<User> findByUsername(String username);
+    Optional<AppUser> findByUsername(String username);
 
     /**
      * Verificar si un username ya existe antes de registrar uno nuevo.

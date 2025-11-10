@@ -7,11 +7,14 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,6 +24,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -56,20 +60,21 @@ public class SecurityConfig {
     }
 
     private RSAPublicKey loadPublicKey() throws Exception {
-        String key = new String(rsaKeys.publicKeyLocation().getEncoded())
+        String key = new String(rsaKeys.publicKeyLocation().getInputStream().readAllBytes(), StandardCharsets.UTF_8)
                 .replace("-----BEGIN PUBLIC KEY-----", "")
                 .replace("-----END PUBLIC KEY-----", "")
-                .replace("\\s+", "");
+                .replaceAll("\\s", "");
         byte[] decoded = Base64.getDecoder().decode(key);
+        X509EncodedKeySpec spec = new X509EncodedKeySpec(decoded);
         KeyFactory kf = KeyFactory.getInstance("RSA");
-        return (RSAPublicKey) kf.generatePublic(new X509EncodedKeySpec(decoded));
+        return (RSAPublicKey) kf.generatePublic(spec);
     }
 
     private RSAPrivateKey loadPrivateKey() throws Exception {
-        String key = new String(rsaKeys.privateKeyLocation().getEncoded())
+        String key = new String(rsaKeys.privateKeyLocation().getInputStream().readAllBytes(),  StandardCharsets.UTF_8)
                 .replace("-----BEGIN PRIVATE KEY-----", "")
                 .replace("-----END PRIVATE KEY-----", "")
-                .replace("\\s+", "");
+                .replaceAll("\\s", "");
         byte[] decoded = Base64.getDecoder().decode(key);
         KeyFactory kf = KeyFactory.getInstance("RSA");
         return (RSAPrivateKey) kf.generatePrivate(new PKCS8EncodedKeySpec(decoded));
@@ -83,17 +88,22 @@ public class SecurityConfig {
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // Se deshabilita CSRF (típico con REST/JWT).
-        http.csrf(csrf -> csrf.disable());
-
-        http.authorizeHttpRequests((auth -> auth
-                .requestMatchers("/sistema/api/v1").permitAll()
-                .anyRequest().authenticated())
-        );
-
-        // Configuración clave para JWT: Sesión sin estado (Stateless)
-        http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> {})); // Esto habilita el manejo de JWT.
-        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/login").permitAll()
+                        .requestMatchers("/auth/logout").authenticated()
+                        .requestMatchers("/auth/**").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> {}))
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex ->
+                        ex.authenticationEntryPoint(
+                                (req, res, exc) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED))
+                );
 
         return http.build();
     }

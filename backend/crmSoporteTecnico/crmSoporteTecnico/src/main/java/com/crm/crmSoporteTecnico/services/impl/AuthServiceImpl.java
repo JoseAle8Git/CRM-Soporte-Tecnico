@@ -1,6 +1,6 @@
 package com.crm.crmSoporteTecnico.services.impl;
 
-import com.crm.crmSoporteTecnico.persistence.entities.User;
+import com.crm.crmSoporteTecnico.persistence.entities.AppUser;
 import com.crm.crmSoporteTecnico.persistence.repositories.UserRepository;
 import com.crm.crmSoporteTecnico.services.IAuthService;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -36,11 +36,11 @@ public class AuthServiceImpl implements IAuthService {
      * @return
      */
     @Override
-    public User authenticate(String username, String rawPassword) {
-        Optional<User> userOpt = userRepository.findByUsername(username);
+    public AppUser authenticate(String username, String rawPassword) {
+        Optional<AppUser> userOpt = userRepository.findByUsername(username);
 
         if(userOpt.isPresent()) {
-            User user = userOpt.get();
+            AppUser user = userOpt.get();
             if(passwordEncoder.matches(rawPassword, user.getPassword())) {
                 return user; // --> Autenticación exitosa
             }
@@ -62,6 +62,7 @@ public class AuthServiceImpl implements IAuthService {
                 .issuer("self")
                 .issuedAt(now)
                 .expiresAt(now.plusSeconds(expiry))
+                .subject(username)
                 .claim("role", getUserRole(username))
                 .build();
 

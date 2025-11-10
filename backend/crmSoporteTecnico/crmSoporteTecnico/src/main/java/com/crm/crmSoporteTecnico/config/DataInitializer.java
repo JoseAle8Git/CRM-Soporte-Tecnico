@@ -1,12 +1,11 @@
 package com.crm.crmSoporteTecnico.config;
 
 import com.crm.crmSoporteTecnico.persistence.entities.Rol;
-import com.crm.crmSoporteTecnico.persistence.entities.User;
+import com.crm.crmSoporteTecnico.persistence.entities.AppUser;
 import com.crm.crmSoporteTecnico.persistence.repositories.ClientRepository;
 import com.crm.crmSoporteTecnico.persistence.repositories.RolRepository;
 import com.crm.crmSoporteTecnico.persistence.repositories.UserRepository;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -59,10 +58,10 @@ public class DataInitializer implements CommandLineRunner {
         rolRepository.saveAll(Arrays.asList(adminRole, managerRole, techRole, clientRole));
 
         // Creación del Usuario Inicial
-        // Contraseña: "Admin123!"
-        String encodedPassword = passwordEncoder.encode("Admin123!");
+        // Contraseña: "Admin123@"
+        String encodedPassword = passwordEncoder.encode("Admin123@");
 
-        User adminUser = new User(
+        AppUser adminUser = new AppUser(
                 null,
                 "admin",
                 encodedPassword,

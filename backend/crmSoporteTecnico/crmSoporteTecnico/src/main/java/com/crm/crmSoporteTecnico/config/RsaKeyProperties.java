@@ -1,10 +1,8 @@
 package com.crm.crmSoporteTecnico.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
+import org.springframework.core.io.Resource;
 
 @ConfigurationProperties(prefix = "jwt.keys")
-public record RsaKeyProperties(RSAPublicKey publicKeyLocation, RSAPrivateKey privateKeyLocation) {
+public record RsaKeyProperties(Resource publicKeyLocation, Resource privateKeyLocation) {
 }

@@ -35,7 +35,7 @@ CREATE TABLE client (
 -- Almacena las credenciales y la relación con el rol y la empresa cliente.
 -- -------------------------------------------------------------------------------------------------------
 
-CREATE TABLE user (
+CREATE TABLE app_user (
     id SERIAL PRIMARY KEY,
     -- Nombre de usuario para autenticación (Spring Security).
     username VARCHAR(50) NOT NULL UNIQUE,
@@ -92,7 +92,7 @@ CREATE TABLE incidence (
     FOREIGN KEY (contact_id) REFERENCES contact(id),
     -- FK 3: Quién está resolviendo (Técnico asignado).
     tech_asigned_id INT,
-    FOREIGN KEY (tech_asigned_id) REFERENCES user(id)
+    FOREIGN KEY (tech_asigned_id) REFERENCES app_user(id)
 );
 
 -- -------------------------------------------------------------------------------------------------------
@@ -111,7 +111,7 @@ CREATE TABLE task (
     FOREIGN KEY (incidence_id) REFERENCES incidence(id),
     -- FK 2: A quién está asignada.
     user_asigned_id INT NOT NULL,
-    FOREIGN KEY (user_asigned_id) REFERENCES user(id)
+    FOREIGN KEY (user_asigned_id) REFERENCES app_user(id)
 );
 
 -- -------------------------------------------------------------------------------------------------------

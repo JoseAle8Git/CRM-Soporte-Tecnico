@@ -1,6 +1,6 @@
 package com.crm.crmSoporteTecnico.services;
 
-import com.crm.crmSoporteTecnico.persistence.entities.User;
+import com.crm.crmSoporteTecnico.persistence.entities.AppUser;
 
 /**
  * Interfaz (Contrato) para el servicio de autenticación.
@@ -13,7 +13,7 @@ public interface IAuthService {
      * @param rawPassword
      * @return
      */
-    User authenticate(String username, String rawPassword);
+    AppUser authenticate(String username, String rawPassword);
 
     /**
      * Método para generar un token JWT para un usuario autenticado.
