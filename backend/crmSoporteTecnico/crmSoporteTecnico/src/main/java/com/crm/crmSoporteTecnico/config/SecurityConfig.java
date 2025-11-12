@@ -88,7 +88,7 @@ public class SecurityConfig {
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
+        return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login").permitAll()
@@ -98,14 +98,16 @@ public class SecurityConfig {
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> {}))
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(ex ->
                         ex.authenticationEntryPoint(
-                                (req, res, exc) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED))
-                );
+                                (req, res, exc) -> res
+                                        .sendError(HttpServletResponse.SC_UNAUTHORIZED))
+                )
+                .build();
 
-        return http.build();
+
     }
 
     /**
