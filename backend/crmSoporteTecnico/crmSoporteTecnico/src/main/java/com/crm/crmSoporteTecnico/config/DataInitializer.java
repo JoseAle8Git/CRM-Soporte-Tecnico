@@ -1,5 +1,6 @@
 package com.crm.crmSoporteTecnico.config;
 
+import com.crm.crmSoporteTecnico.persistence.entities.Client;
 import com.crm.crmSoporteTecnico.persistence.entities.Rol;
 import com.crm.crmSoporteTecnico.persistence.entities.AppUser;
 import com.crm.crmSoporteTecnico.persistence.repositories.ClientRepository;
@@ -20,6 +21,7 @@ public class DataInitializer implements CommandLineRunner {
     private final RolRepository rolRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ClientRepository clientRepository;
 
     /**
      * Inyección de dependencias por constructor.
@@ -31,6 +33,7 @@ public class DataInitializer implements CommandLineRunner {
         this.rolRepository = rolRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.clientRepository = clientRepository;
     }
 
     /**
@@ -48,6 +51,7 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void initializeRolesUsers() {
+
         // Definición de roles.
         Rol adminRole = new Rol(null, "ADMIN", "Administrador del sistema con control total.");
         Rol managerRole = new Rol(null, "MANAGER", "Supervisor de soporte y gestión de métricas.");
@@ -73,6 +77,55 @@ public class DataInitializer implements CommandLineRunner {
         );
 
         userRepository.save(adminUser);
+
+        String pass1 = passwordEncoder.encode("Manager123@");
+        String pass2 = passwordEncoder.encode("Tech123@");
+        String pass3 = passwordEncoder.encode("Client123@");
+
+        AppUser appUser1 = new AppUser(
+                null,
+                "manager",
+                pass1,
+                "Super Manager",
+                "444-1234",
+                "manager@crm.com",
+                managerRole,
+                null
+        );
+        userRepository.save(appUser1);
+        AppUser appUser2 = new AppUser(
+                null,
+                "tech",
+                pass2,
+                "Super Tech",
+                "333-1234",
+                "tech@crm.com",
+                techRole,
+                null
+        );
+        userRepository.save(appUser2);
+
+        Client client = new Client(
+                null,
+                "Cliente Prueba",
+                "123456789",
+                "Dirección Prueba",
+                true,
+                "CORPORATIVO",
+                null
+        );
+        clientRepository.save(client);
+        AppUser appUser3 = new AppUser(
+                null,
+                "client",
+                pass3,
+                "Super Client",
+                "222-1234",
+                "client@crm.com",
+                clientRole,
+                client
+        );
+        userRepository.save(appUser3);
 
         System.out.println("Roles y usuario iniciales creados exitosamente.");
     }

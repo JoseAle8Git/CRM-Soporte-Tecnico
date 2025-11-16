@@ -42,7 +42,7 @@ export class Auth {
   setAuth(respose: AuthResponse): void {
     this.currentUser = respose;
     localStorage.setItem(this.USER_KEY, JSON.stringify(respose));
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/protected']);
   }
 
   isLoggedIn(): boolean {

@@ -4,13 +4,13 @@ import { AdminDashboard } from './admin-dashboard/admin-dashboard';
 import { ManagerDashboard } from './manager-dashboard/manager-dashboard';
 import { TechDashboard } from './tech-dashboard/tech-dashboard';
 import { ClientDashboard } from './client-dashboard/client-dashboard';
+import { ProtectedShell } from './protected-shell/protected-shell';
 
 const routes: Routes = [
 
   {
     path: '',
-    redirectTo: 'manager',
-    pathMatch: 'full'
+    component: ProtectedShell
   },
 
   {

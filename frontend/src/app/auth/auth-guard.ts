@@ -17,7 +17,7 @@ export const authGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: R
     return router.createUrlTree(['/auth/login']);
   }
 
-  const userRole = authService.getUserRole();
+  const userRole = authService.getUserRole()?.toUpperCase();
   const targetSegment = ROLE_REDIRECTS[userRole || ''];
 
   if(!targetSegment) {
