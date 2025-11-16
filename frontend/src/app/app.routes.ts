@@ -9,16 +9,20 @@ export const routes: Routes = [
         path: 'store',
         component: Store
     },
-    // Ruta de Autenticación (carga perezosa). Contiene el Login.
     {
-        path: 'auth',
-        loadChildren: () => import('./auth/auth-module').then(m => m.AuthModule)
+        path: 'auth/login',
+        component: Login
     },
     // Ruta genérica para el dashbooard.
     {
         path: 'dashboard',
         canActivate: [authGuard],
         loadChildren: () => import('./main/main-module').then(m => m.MainModule)
+    },
+    // Ruta de Autenticación (carga perezosa). Contiene el Login.
+    {
+        path: 'auth',
+        loadChildren: () => import('./auth/auth-module').then(m => m.AuthModule)
     },
     // Ruta por defecto/raíz.
     {

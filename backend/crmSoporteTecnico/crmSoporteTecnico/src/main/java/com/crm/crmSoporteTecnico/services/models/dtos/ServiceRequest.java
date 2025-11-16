@@ -9,12 +9,16 @@ import jakarta.validation.constraints.Size;
  * @param companyName
  * @param contactName
  * @param email
- * @param packegeName
+ * @param packageName
  * @param message
  */
 public record ServiceRequest(
         @NotBlank(message = "El nombre de la empresa no puede estar vacío.")
         String companyName,
+
+        @NotBlank(message = "El CIF de la empresa es obligatorio.")
+        @Size(min = 9, max = 20, message = "El CIF debe tener entre 9 y 20 caracteres.")
+        String cif,
 
         @NotBlank(message = "El nombre del contacto no puede estar vacío.")
         String contactName,
@@ -24,9 +28,9 @@ public record ServiceRequest(
         String email,
 
         @NotBlank(message = "El paquete de servicio debe estar seleccionado.")
-        String packegeName,
+        String packageName,
 
-        @Size(max = 500, message = "El mensaje no puede execeder los 500 caracteres.")
+        @Size(max = 500, message = "El mensaje no puede exceder los 500 caracteres.")
         String message
 ) {
 }

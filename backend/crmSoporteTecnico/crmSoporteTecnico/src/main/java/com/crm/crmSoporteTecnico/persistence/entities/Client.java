@@ -55,6 +55,13 @@ public class Client {
     private Boolean active = true;
 
     /**
+     * Paquete de servicio seleccionado.
+     */
+    @NotBlank(message = "El paquete de servicio es obligatorio.")
+    @Column(name = "service_package", nullable = false, length = 50)
+    private String servicePackage;
+
+    /**
      * ID para posible integración de API externa.
      */
     @Column(name = "api_extern_id", length = 50)

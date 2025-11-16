@@ -26,6 +26,7 @@ CREATE TABLE client (
     direction VARCHAR(255),
     -- Booleano para filtros de métricas (clientes activos/inactivos).
     active BOOLEAN NOT NULL DEFAULT TRUE,
+    service_package VARCHAR(50) NOT NULL,
     -- Hueco para ID de API externa.
     api_extern_id VARCHAR(50)
 );

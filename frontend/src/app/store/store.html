@@ -1,1 +1,113 @@
-<p>store works!</p>
+<div class="store-container">
+
+    <mat-toolbar color="primary">
+        <span>CRM Soporte | Presentación de Servicios</span>
+        <span class="spacer"></span>
+        <button mat-button routerLink="/auth/login">
+            <mat-icon>login</mat-icon>
+            Volver al Login
+        </button>
+    </mat-toolbar>
+
+    <div class="content-wrapper">
+        <h1 class="mat-display-1">Nuestros Paquetes de Soporte Empresarial</h1>
+        
+        <section class="packages-grid">
+            @for (pack of packages; track pack) {
+                <mat-card class="package-card" [class.featured]="pack === 'Plan Profesional'">
+                    <mat-card-header>
+                        <mat-card-title>{{ pack }}</mat-card-title>
+                        <mat-card-subtitle>
+                            @if (pack === 'Plan Esencial') { Ideal para startups }
+                            @else if (pack === 'Plan Profesional') { Máxima eficiencia }
+                            @else { Servicios dedicados }
+                        </mat-card-subtitle>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <h2 class="price">
+                            @switch (pack) {
+                                @case ('Plan Esencial') { 99€ / mes }
+                                @case ('Plan Profesional') { 299€ / mes }
+                                @case ('Plan Corporativo') { 499€ / mes }
+                            }
+                        </h2>
+                        </mat-card-content>
+                    <mat-card-actions>
+                        <button mat-raised-button color="accent" (click)="selectPackage(pack)">Solicitar Plan</button>
+                    </mat-card-actions>
+                </mat-card>
+            }
+        </section>
+
+        @if (requestForm.get('packageName')?.value) {
+            <mat-card class="request-form-card">
+                <mat-card-header>
+                    <mat-card-title>Solicitud del plan: {{ requestForm.get('packageName')?.value }}</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                    
+                    @if (requestStatus === 'success') {
+                        <div class="success-message">¡Solicitud enviada! Un manager se pondrá en contacto pronto.</div>
+                    }
+                    @if (requestStatus === 'error') {
+                        <div class="error-message">Error al enviar la solicitud. Por favor, inténtalo de nuevo.</div>
+                    }
+                    
+                    <form [formGroup]="requestForm" (ngSubmit)="onSubmitRequest()" class="request-form-grid">
+                        
+                        <mat-form-field appearance="outline" class="full-width">
+                            <mat-label>Nombre de la Empresa</mat-label>
+                            <input matInput formControlName="companyName" required>
+                            @if (requestForm.get('companyName')?.invalid && requestForm.get('companyName')?.touched) {
+                                <mat-error>El nombre de la empresa es obligatorio.</mat-error>
+                            }
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="full-width">
+                            <mat-label>CIF / NIF</mat-label>
+                            <input matInput formControlName="cif" required>
+                            @if(requestForm.get('cif')?.invalid && requestForm.get('cif')?.touched) {
+                                <mat-error>El CIF/NIF es obligatorio y debe tener entre 9 y 20 caracteres.</mat-error>
+                            }
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="full-width">
+                            <mat-label>Nombre del Contacto</mat-label>
+                            <input matInput formControlName="contactName" required>
+                            @if(requestForm.get('contactName')?.invalid && requestForm.get('contactName')?.touched) {
+                                <mat-error>El nombre del contacto es obligatorio.</mat-error>
+                            }
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="full-width">
+                            <mat-label>Correo Electrónico</mat-label>
+                            <input matInput formControlName="email" type="email" required>
+                            @if(requestForm.get('email')?.hasError('required') && requestForm.get('email')?.touched) {
+                                <mat-error>El correo es obligatorio.</mat-error>
+                            }
+                            @if(requestForm.get('email')?.hasError('email') && requestForm.get('email')?.touched) {
+                                <mat-error>Formato de correo inválido.</mat-error>
+                            }
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="full-width">
+                            <mat-label>Paquete Seleccionado</mat-label>
+                            <input matInput formControlName="packageName" [readonly]="true">
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="full-width">
+                            <mat-label>Mensaje / Notas adicionales (Opcional)</mat-label>
+                            <textarea matInput formControlName="message" rows="3"></textarea>
+                        </mat-form-field>
+
+                        <mat-card-actions class="full-width">
+                            <button mat-raised-button color="primary" type="submit" [disabled]="requestForm.invalid">
+                                Enviar Solicitud
+                            </button>
+                        </mat-card-actions>
+                    </form>
+                </mat-card-content>
+            </mat-card>
+        }
+    </div>
+</div>
