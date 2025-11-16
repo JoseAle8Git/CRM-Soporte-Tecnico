@@ -15,9 +15,9 @@ export const routes: Routes = [
     },
     // Ruta genérica para el dashbooard.
     {
-        path: 'dashboard',
+        path: 'protected',
         canActivate: [authGuard],
-        loadChildren: () => import('./main/main-module').then(m => m.MainModule)
+        loadChildren: () => import('./protected/protected-module').then(m => m.ProtectedModule)
     },
     // Ruta de Autenticación (carga perezosa). Contiene el Login.
     {
