@@ -11,7 +11,7 @@ export interface LoginRequest {
 }
 
 export interface AuthResponse {
-  userid: number;
+  userId: number;
   username: string;
   role: string;
 }
@@ -76,7 +76,7 @@ export class Auth {
     return this.currentUser ? this.currentUser.role : null;
   }
 
-  getUserData(): String | null {
+  getUserData(): string | null {
     return this.currentUser ? this.currentUser.username : null;
   }
 

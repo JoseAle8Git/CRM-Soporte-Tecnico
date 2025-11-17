@@ -14,26 +14,23 @@ import { Auth } from '../../auth/auth';
 })
 export class ClientDashboard implements OnInit {
 
-  // 1. Inyectamos tu servicio
+  // 1. Inyectamos el servicio
   private authService = inject(Auth);
 
-  // 2. Signal inicializada vacía o con un texto de carga
-  userName = signal<string>('Cargando...');
+  // 2. Signal inicializada vacía
+  userName = signal<any>(null);
   companyData = signal<any>(null);
   chartData = signal<any>(null);
   tickets = signal<any[]>([]);
 
 
   ngOnInit() {
-    // 3. Llamamos a tu nuevo método
+    // 3. Llamamos al nuevo método
     const userInDb = this.authService.getUserData();
 
     if (userInDb) {
       // Convertimos a string primitivo por si acaso y actualizamos la señal
       this.userName.set(userInDb.toString());
-    } else {
-      // Opcional: Si devuelve null, podrías redirigir al login o poner "Invitado"
-      this.userName.set('Invitado');
     }
   }
 } 
