@@ -27,12 +27,12 @@ export class Auth {
   constructor(
     private http: HttpClient,
     private router: Router
-  ){
+  ) {
     this.loadUserFromStorage();
   }
 
   login(request: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${API_URL}/login`, request, {withCredentials: true}).pipe(
+    return this.http.post<AuthResponse>(`${API_URL}/login`, request, { withCredentials: true }).pipe(
       tap(response => {
         this.setAuth(response);
       })
@@ -51,13 +51,13 @@ export class Auth {
 
   private loadUserFromStorage(): void {
     const userJson = localStorage.getItem(this.USER_KEY);
-    if(userJson) {
+    if (userJson) {
       this.currentUser = JSON.parse(userJson) as AuthResponse;
     }
   }
 
   logout(): void {
-    this.http.post(`${API_URL}/logout`, {}, {withCredentials: true}).subscribe({
+    this.http.post(`${API_URL}/logout`, {}, { withCredentials: true }).subscribe({
       next: () => {
         this.currentUser = null;
         localStorage.removeItem(this.USER_KEY);
@@ -74,6 +74,10 @@ export class Auth {
 
   getUserRole(): string | null {
     return this.currentUser ? this.currentUser.role : null;
+  }
+
+  getUserData(): String | null {
+    return this.currentUser ? this.currentUser.username : null;
   }
 
 }

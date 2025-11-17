@@ -1,1 +1,70 @@
-<p>client-dashboard works!</p>
+<div class="dashboard-container">
+
+  <header class="header-row">
+    <h1>Bienvenido {{ userName() }}</h1>
+    
+    <button mat-icon-button class="avatar-btn">
+      <mat-icon class="large-icon">account_circle</mat-icon>
+    </button>
+  </header>
+
+  <main class="grid-layout">
+
+    <mat-card appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>Gestionar Empresa</mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content class="centered-content">
+        @if (companyData()) {
+          <p>Info de la empresa...</p>
+        } @else {
+          <p class="no-data">No hay datos registrados</p>
+        }
+      </mat-card-content>
+
+      <mat-card-actions align="end">
+        <button mat-stroked-button color="primary">
+          <mat-icon>edit</mat-icon> Editar
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+    <mat-card appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>Métricas</mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content class="centered-content">
+        @if (chartData()) {
+          <p>Gráfico...</p>
+        } @else {
+          <p class="no-data">No hay datos registrados</p>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card appearance="outlined" class="full-width">
+      <mat-card-header>
+        <mat-card-title>Tickets / Incidencias</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        @if (tickets().length > 0) {
+          <p>Lista...</p>
+        } @else {
+          <div class="centered-content" style="padding: 40px 0;">
+             <p class="no-data">No hay tickets recientes</p>
+          </div>
+        }
+      </mat-card-content>
+      
+      <mat-card-actions align="end">
+        <button mat-stroked-button color="primary">
+           <mat-icon>folder_open</mat-icon> Gestionar
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+  </main>
+</div>

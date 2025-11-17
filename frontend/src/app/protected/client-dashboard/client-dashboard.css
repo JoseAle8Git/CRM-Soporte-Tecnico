@@ -1,0 +1,49 @@
+/* Layout general */
+.dashboard-container {
+  padding: 24px;
+  background-color: #f5f5f5; /* Fondo gris suave típico de Material */
+  min-height: 100vh;
+}
+
+/* Header flex */
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+/* Icono de usuario grande */
+.large-icon {
+  transform: scale(2); /* Hacemos el icono x2 de grande */
+  color: #673ab7;      /* Color morado material */
+}
+
+/* GRID LAYOUT (Esto se mantiene igual porque organiza las cajas) */
+.grid-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.full-width {
+  grid-column: span 2;
+}
+
+/* Utilidades pequeñas */
+.centered-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100px;
+}
+
+.no-data {
+  color: #7cb342; /* Verde material */
+  font-weight: 500;
+}
+
+/* Ajuste específico para cards de Material */
+mat-card {
+  height: 100%; /* Para que ocupen toda la altura de la celda del grid */
+}

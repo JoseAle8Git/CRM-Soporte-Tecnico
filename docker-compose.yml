@@ -4,7 +4,7 @@ version: '3.8'
 services:
   db-postgres:
     # 1. Imagen a utilizar: PostgreSQL 16 (una versión estable y reciente)
-    image: postgres:16
+    image: postgres:17
     
     # 2. Reinicio: Asegura que el contenedor intente reiniciarse si falla
     restart: always
@@ -17,6 +17,7 @@ services:
       POSTGRES_USER: crm_user
       # Contraseña para el usuario (¡Cambiar en producción!)
       POSTGRES_PASSWORD: crm_password
+      
 
     # 4. Mapeo de Puertos: Expone el puerto interno (5432) al puerto externo (5432)
     #    Esto permite que tu máquina o herramientas externas se conecten.
