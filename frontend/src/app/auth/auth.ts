@@ -64,7 +64,7 @@ export class Auth {
         this.router.navigate(['/auth/login']);
       },
       error: (err) => {
-        console.error("Error al hacer logout, forzando cierre local.");
+        console.error("Error al hacer logout, forzando cierre local.", err);
         this.currentUser = null;
         localStorage.removeItem(this.USER_KEY);
         this.router.navigate(['/auth/login']);

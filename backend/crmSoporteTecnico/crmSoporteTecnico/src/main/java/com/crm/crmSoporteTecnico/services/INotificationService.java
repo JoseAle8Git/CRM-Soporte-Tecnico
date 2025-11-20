@@ -1,5 +1,7 @@
 package com.crm.crmSoporteTecnico.services;
 
+import com.crm.crmSoporteTecnico.persistence.entities.AppUser;
+import com.crm.crmSoporteTecnico.persistence.entities.Incidence;
 import com.crm.crmSoporteTecnico.services.models.dtos.ServiceRequest;
 
 public interface INotificationService {
@@ -9,5 +11,18 @@ public interface INotificationService {
      * @param request
      */
     void notifyManagerNewServiceRequest(ServiceRequest request);
+
+    /**
+     * Notificación asíncrona de credenciales.
+     * @param user
+     * @param rawPassword
+     */
+    void notifyNewUserCredentials(AppUser user, String rawPassword);
+
+    /**
+     * Notificación de asignación de incidencia.
+     * @param incidence
+     */
+    void notifyTechnicianAssignment(Incidence incidence);
 
 }
