@@ -3,7 +3,7 @@ package com.crm.crmSoporteTecnico.persistence.repositories;
 import com.crm.crmSoporteTecnico.persistence.entities.AppUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -27,10 +27,15 @@ public interface UserRepository extends JpaRepository<AppUser,Long> {
     Boolean existsByUsername(String username);
 
     /**
-     * Verificar su un email ya existe.
+     * Verificar si un email ya existe.
      * @param email
      * @return
      */
     Boolean existsByEmail(String email);
+
+    /**
+     * Busca todos los usuarios que pertenecen a una empresa específica.
+     */
+    List<AppUser> findByClientId(Long clientId);
 
 }

@@ -8,7 +8,7 @@ import { MatDialog } from '@angular/material/dialog'; // Importante para abrir l
 // TUS IMPORTS PROPIOS
 import { Auth } from '../../auth/auth';
 import { ClientService, ClientData } from '../../services/client';
-import { CompanyModalComponent } from './components/company-modal/company-modal'; 
+import { CompanyModalComponent } from './components/company-modal/company-modal';
 // ^ Asegúrate de que la ruta a 'components/company-modal...' sea correcta según tu carpeta
 
 @Component({
@@ -27,10 +27,10 @@ export class ClientDashboard implements OnInit {
 
   // 2. Signals
   userName = signal<string>('Cargando...');
-  
+
   // Aquí guardaremos los datos de la empresa (Nombre, CIF, Plan...)
   companyData = signal<ClientData | null>(null);
-  
+
   chartData = signal<any>(null);
   tickets = signal<any[]>([]);
 
@@ -44,7 +44,7 @@ export class ClientDashboard implements OnInit {
     // B. Cargar datos de la empresa
     // TRUCO: Usamos el ID 1 fijo para probar lo que metimos en SQL.
     // Más adelante cambiarás el 1 por: this.authService.getClientId()
-    const myClientId = 1; 
+    const myClientId = 1;
 
     this.clientService.getClientById(myClientId).subscribe({
       next: (data) => {
@@ -56,22 +56,24 @@ export class ClientDashboard implements OnInit {
   }
 
   // 3. Función para el botón "Ver Detalles"
+  // ESTA ES LA FUNCIÓN QUE LLAMA EL BOTÓN
   openDetails() {
     const company = this.companyData();
-    
-    // Si no se han cargado los datos de la empresa, no hacemos nada
-    if (!company) return;
 
-    // Hacemos las llamadas anidadas para tener toda la info antes de abrir
-    // 1. Pedimos los compañeros (Usuarios)
+    if (!company) {
+      console.error("No hay datos de empresa para mostrar");
+      return;
+    }
+
+    // 1. Pedimos los usuarios de la empresa
     this.clientService.getUsersByClientId(company.id).subscribe(users => {
-      
-      // 2. Pedimos los sub-clientes (Facturación)
+
+      // 2. Pedimos los sub-clientes (facturación)
       this.clientService.getSubClients(company.id).subscribe(subClients => {
-        
-        // 3. Abrimos el Modal pasándole todo el paquete de datos
+
+        // 3. Abrimos el modal enviándole toda la información junta
         this.dialog.open(CompanyModalComponent, {
-          width: '800px', // Ancho de la ventana
+          width: '900px', // Un poco más ancho para que quepan las tablas
           data: {
             company: company,
             users: users,

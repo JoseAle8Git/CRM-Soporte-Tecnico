@@ -1,12 +1,12 @@
 <h2 mat-dialog-title style="display:flex; align-items:center; gap:10px;">
   <mat-icon>business</mat-icon> 
-  {{ data.company.company_name }}
+  {{ data.company.companyName }}
 </h2>
 
 <mat-dialog-content>
   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; background: #f5f5f5; padding: 15px; border-radius: 8px;">
     <span><strong>CIF:</strong> {{ data.company.cif }}</span>
-    <span><strong>Plan:</strong> {{ data.company.service_package }}</span>
+    <span><strong>Plan:</strong> {{ data.company.servicePackage }}</span>
     <span><strong>Dirección:</strong> {{ data.company.direction }}</span>
     <span><strong>Estado:</strong> {{ data.company.active ? '✅ Activo' : '❌ Inactivo' }}</span>
   </div>

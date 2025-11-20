@@ -37,6 +37,13 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 
+
+// AÑADI ESTAS 4 LÍNEAS:
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
+import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
+
 /**
  * Esta clase representa varias configuraciones de la app.
  */
@@ -49,6 +56,7 @@ public class SecurityConfig {
 
     /**
      * Inyección de las propiedades de las llaves RSA.
+     *
      * @param rsaKeys
      */
     public SecurityConfig(RsaKeyProperties rsaKeys) {
@@ -57,6 +65,7 @@ public class SecurityConfig {
 
     /**
      * Definición del passwordEncoder.
+     *
      * @return
      */
     @Bean
@@ -76,7 +85,7 @@ public class SecurityConfig {
     }
 
     private RSAPrivateKey loadPrivateKey() throws Exception {
-        String key = new String(rsaKeys.privateKeyLocation().getInputStream().readAllBytes(),  StandardCharsets.UTF_8)
+        String key = new String(rsaKeys.privateKeyLocation().getInputStream().readAllBytes(), StandardCharsets.UTF_8)
                 .replace("-----BEGIN PRIVATE KEY-----", "")
                 .replace("-----END PRIVATE KEY-----", "")
                 .replaceAll("\\s", "");
@@ -87,6 +96,7 @@ public class SecurityConfig {
 
     /**
      * definción de la cadena de filtros de seguridad.
+     *
      * @param http
      * @return
      * @throws Exception
@@ -105,7 +115,9 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> {}))
+                        .jwt(jwt -> {
+                        })
+                )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(ex ->
@@ -134,6 +146,7 @@ public class SecurityConfig {
 
     /**
      * Bean para decodificar (Verificar) el JWT.
+     *
      * @return
      */
     @Bean
@@ -143,6 +156,7 @@ public class SecurityConfig {
 
     /**
      * Bean para codificar (Crear) el JWT.
+     *
      * @return
      */
     @Bean
