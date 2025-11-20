@@ -1,9 +1,13 @@
 package com.crm.crmSoporteTecnico.services.impl;
 
+import com.crm.crmSoporteTecnico.persistence.entities.AppUser;
+import com.crm.crmSoporteTecnico.persistence.entities.Incidence;
 import com.crm.crmSoporteTecnico.services.INotificationService;
 import com.crm.crmSoporteTecnico.services.models.dtos.ServiceRequest;
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -54,4 +58,89 @@ public class NotificationServiceImpl implements INotificationService {
             System.out.println("Error al enviar la notificación: " + ex.getMessage());
         }
     }
+
+    /**
+     * Envía las credenciales de forma asíncrona, ejecutando un hilo separado.
+     * @param user
+     * @param rawPassword
+     */
+    @Override
+    @Async
+    public void notifyNewUserCredentials(AppUser user, String rawPassword) {
+
+        System.out.println("Iniciando envío asíncrono de credenciales a: " + user.getEmail());
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, "utf-8");
+
+        try{
+            helper.setTo(user.getEmail());
+            helper.setSubject("Bienvenido al CRM - Credenciales de Acceso");
+            String htmlContent = String.format(
+                    "<html><body>" +
+                            "<h2>¡Hola %s!</h2>" +
+                            "<p>Has sido registrado en nuestro CRM de Soporte Técnico con el rol de <b>%s</b>.</p>" +
+                            "<p>Utiliza las siguientes credenciales para acceder:</p>" +
+                            "<ul>" +
+                            "<li><b>URL de Acceso:</b> http://localhost:4200</li>" +
+                            "<li><b>Usuario (Username):</b> %s</li>" +
+                            "<li><b>Contraseña Temporal:</b> %s</li>" +
+                            "</ul>" +
+                            "<p>Por favor, cambia tu contraseña al iniciar sesión por primera vez.</p>" +
+                            "</body></html>",
+                    user.getName(), user.getRol().getName(), user.getUsername(), rawPassword
+            );
+        } catch(Exception ex) {
+            System.err.println("Error al enviar correo de credenciales: " +ex.getMessage());
+        }
+
+    }
+
+    /**
+     * Notifica al técnico de una nueva incidencia asignada.
+     * @param incidence
+     */
+    @Override
+    @Async
+    public void notifyTechnicianAssignment(Incidence incidence) {
+
+        System.out.println("Iniciando notificación de a asignación a técnico: " + incidence.getTechnician().getEmail());
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, "utf-8");
+
+        try {
+            helper.setTo(incidence.getTechnician().getEmail());
+            helper.setSubject("¡Nueva Incidencia Asignada! - # " + incidence.getId());
+
+            String htmlContent = String.format(
+                    "<html><body>" +
+                            "<h2>Hola %s,</h2>" +
+                            "<p>Se te ha asignado una nueva incidencia en el CRM.</p>" +
+                            "<ul>" +
+                            "<li><b>Incidencia ID:</b> #%d</li>" +
+                            "<li><b>Título:</b> %s</li>" +
+                            "<li><b>Cliente:</b> %s</li>" +
+                            "<li><b>Prioridad:</b> %s</li>" +
+                            "</ul>" +
+                            "<p>Por favor, revisa el ticket y comienza la gestión.</p>" +
+                            "</body></html>",
+                    incidence.getTechnician().getName(),
+                    incidence.getId(),
+                    incidence.getTitle(),
+                    incidence.getClient().getCompanyName(),
+                    incidence.getPriority().name()
+            );
+
+            helper.setText(htmlContent, true);
+            helper.setFrom(SENDER_EMAIL);
+
+            mailSender.send(message);
+            System.out.println("Correo de asignación enviado a técnico: " + incidence.getTechnician().getEmail());
+        } catch(Exception ex) {
+            System.out.println("Error al enviar la notificación de asignación: " + ex.getMessage());
+        }
+
+    }
+
 }

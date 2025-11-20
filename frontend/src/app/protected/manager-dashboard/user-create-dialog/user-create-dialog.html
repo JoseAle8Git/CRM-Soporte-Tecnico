@@ -1,0 +1,100 @@
+<h1 mat-dialog-title>Añadir Nuevo Usuario al CRM</h1>
+
+<div mat-dialog-content>
+    
+    <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="form-grid">
+        
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Nombre Completo</mat-label>
+            <input matInput formControlName="name" required>
+            @if (userForm.get('name')?.hasError('required') && userForm.get('name')?.touched) {
+                <mat-error>El nombre es obligatorio.</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Correo Electrónico</mat-label>
+            <input matInput formControlName="email" type="email" required>
+            @if (userForm.get('email')?.hasError('required') && userForm.get('email')?.touched) {
+                <mat-error>El email es obligatorio.</mat-error>
+            }
+            @if (userForm.get('email')?.hasError('email')) {
+                <mat-error>Formato de correo inválido.</mat-error>
+            }
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Teléfono</mat-label>
+            <input matInput formControlName="telephone">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Asignar Rol</mat-label>
+            <mat-select formControlName="roleName" required>
+                @for (role of creatableRoles; track role) {
+                    <mat-option [value]="role">{{ role }}</mat-option>
+                }
+            </mat-select>
+            @if (userForm.get('roleName')?.hasError('required') && userForm.get('roleName')?.touched) {
+                <mat-error>El rol es obligatorio.</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-divider style="margin: 20px 0;"></mat-divider>
+
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Nombre de Usuario</mat-label>
+            <input matInput formControlName="username" required>
+            @if (userForm.get('username')?.hasError('required') && userForm.get('username')?.touched) {
+                <mat-error>El nombre de usuario es obligatorio.</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Contraseña Temporal</mat-label>
+            <input matInput formControlName="rawPassword" readonly> 
+            <mat-icon matSuffix color="warn">lock</mat-icon>
+            <mat-hint>Se enviará por correo al usuario.</mat-hint>
+        </mat-form-field>
+
+        <mat-divider style="margin: 20px 0;"></mat-divider>
+        
+        @if (userForm.get('roleName')?.value === 'CLIENTE') {
+            <div class="client-data-group">
+                <h3>Datos de la Empresa (Cliente)</h3>
+                
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>CIF / NIF</mat-label>
+                    <input matInput formControlName="cif" required>
+                    @if (userForm.get('cif')?.hasError('required') && userForm.get('cif')?.touched) {
+                        <mat-error>El CIF/NIF es obligatorio para clientes.</mat-error>
+                    }
+                </mat-form-field>
+                
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>ID de Cliente (Empresa)</mat-label>
+                    <input matInput formControlName="clientId" type="number" required>
+                    @if (userForm.get('clientId')?.hasError('required') && userForm.get('clientId')?.touched) {
+                        <mat-error>El ID de la empresa es obligatorio.</mat-error>
+                    }
+                </mat-form-field>
+            </div>
+        }
+        
+    </form>
+
+    @if (submissionError) {
+        <div class="error-message">{{ submissionError }}</div>
+    }
+
+</div>
+
+<div mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()" [disabled]="isLoading">
+        <mat-icon>close</mat-icon> Cancelar
+    </button>
+    <button mat-raised-button color="primary" type="submit" (click)="onSubmit()" [disabled]="userForm.invalid || isLoading">
+        <mat-icon>person_add</mat-icon>
+        @if (isLoading) { Creando... } @else { Crear Usuario }
+    </button>
+</div>

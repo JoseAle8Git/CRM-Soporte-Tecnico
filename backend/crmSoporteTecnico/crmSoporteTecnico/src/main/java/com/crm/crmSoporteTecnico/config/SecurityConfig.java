@@ -1,5 +1,6 @@
 package com.crm.crmSoporteTecnico.config;
 
+import com.crm.crmSoporteTecnico.services.IAuthService;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -7,6 +8,7 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +24,8 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
+import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -36,13 +40,6 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
-
-
-// AÑADI ESTAS 4 LÍNEAS:
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
-import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 
 /**
  * Esta clase representa varias configuraciones de la app.
@@ -117,6 +114,8 @@ public class SecurityConfig {
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> {
                         })
+                        .jwt(jwt -> {})
+                        .bearerTokenResolver(cookieTokenResolver())
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -127,7 +126,30 @@ public class SecurityConfig {
                 )
                 .build();
 
+    }
 
+    @Bean
+    public BearerTokenResolver cookieTokenResolver() {
+        DefaultBearerTokenResolver resolver = new DefaultBearerTokenResolver();
+
+        resolver.setAllowFormEncodedBodyParameter(true);
+        resolver.setAllowUriQueryParameter(true);
+
+        return (request) -> {
+            String token = null;
+            if(request.getCookies() != null) {
+                for(Cookie cookie : request.getCookies()) {
+                    if("jwt".equals(cookie.getName())) {
+                        token = cookie.getValue();
+                        break;
+                    }
+                }
+            }
+            if(token != null) {
+                return token;
+            }
+            return resolver.resolve(request);
+        };
     }
 
     @Bean

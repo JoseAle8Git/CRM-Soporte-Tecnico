@@ -1,1 +1,158 @@
-<p>manager-dashboard works!</p>
+<div class="dashboard-container">
+    <mat-toolbar color="primary">
+        <span>Dashboard del Manager</span>
+        <span class="spacer"></span>
+        <button mat-button (click)="onLogout()">
+            <mat-icon>logout</mat-icon>
+            Cerrar Sesión
+        </button>
+    </mat-toolbar>
+
+    <div class="content-grid">
+        
+        <mat-card class="user-management-card">
+            <mat-card-header>
+                <mat-card-title>Gestión de Usuarios</mat-card-title>
+                <mat-card-subtitle>Añadir y listar personal / clientes.</mat-card-subtitle>
+                <button mat-mini-fab color="accent" (click)="openCreateUserDialog()" style="margin-left: auto;">
+                    <mat-icon>add</mat-icon>
+                </button>
+            </mat-card-header>
+            <mat-card-content>
+                <mat-divider></mat-divider>
+                <h3 style="margin-top: 15px;">Usuarios Registrados</h3>
+        
+                <div class="table-container">
+                    <table mat-table [dataSource]="userDataSource" class="full-width-table">
+
+                        <ng-container matColumnDef="username">
+                            <th mat-header-cell *matHeaderCellDef> Usuario </th>
+                            <td mat-cell *matCellDef="let element"> {{element.username}} </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="name">
+                            <th mat-header-cell *matHeaderCellDef> Nombre Completo </th>
+                            <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+                        </ng-container>
+                
+                        <ng-container matColumnDef="email">
+                            <th mat-header-cell *matHeaderCellDef> Email </th>
+                            <td mat-cell *matCellDef="let element"> {{element.email}} </td>
+                        </ng-container>
+                
+                        <ng-container matColumnDef="role">
+                            <th mat-header-cell *matHeaderCellDef> Rol </th>
+                            <td mat-cell *matCellDef="let element"> {{element.role | roleDisplay}} </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="actions">
+                            <th mat-header-cell *matHeaderCellDef> Acciones </th>
+                            <td mat-cell *matCellDef="let element"> 
+                                <button mat-icon-button color="accent" [disabled]="true">
+                                    <mat-icon>edit</mat-icon>
+                                </button>
+                            </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="userDisplayedColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: userDisplayedColumns;"></tr>
+                
+                        <tr class="mat-row" *matNoDataRow>
+                            <td class="mat-cell" colspan="5">No hay usuarios registrados.</td>
+                        </tr>
+                    </table>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card class="incidence-assignment-card">
+            <mat-card-header>
+                <mat-card-title>Asignación de Tickets</mat-card-title>
+                <mat-card-subtitle>Tickets sin asignar o en proceso.</mat-card-subtitle>
+                    <button mat-icon-button (click)="loadIncidences()" style="margin-left: auto;">
+                        <mat-icon>refresh</mat-icon>
+                    </button>
+            </mat-card-header>
+            <mat-card-content>
+                <div class="table-container">
+                    <table mat-table [dataSource]="incidenceDataSource" class="full-width-table">
+
+                        <ng-container matColumnDef="id">
+                            <th mat-header-cell *matHeaderCellDef> ID </th>
+                            <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+                        </ng-container>
+                        <ng-container matColumnDef="title">
+                            <th mat-header-cell *matHeaderCellDef> Título </th>
+                            <td mat-cell *matCellDef="let element"> {{element.title}} </td>
+                        </ng-container>
+                        <ng-container matColumnDef="client">
+                            <th mat-header-cell *matHeaderCellDef> Cliente </th>
+                            <td mat-cell *matCellDef="let element"> {{element.clientName}} </td>
+                        </ng-container>
+    
+                        <ng-container matColumnDef="technician">
+                            <th mat-header-cell *matHeaderCellDef> Técnico Asignado </th>
+                            <td mat-cell *matCellDef="let element"> {{element.technicianName}} </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="status">
+                            <th mat-header-cell *matHeaderCellDef> Estado </th>
+                            <td mat-cell *matCellDef="let element"> {{element.status}} </td>
+                        </ng-container>
+                        <ng-container matColumnDef="priority">
+                            <th mat-header-cell *matHeaderCellDef> Prioridad </th>
+                            <td mat-cell *matCellDef="let element"> {{element.priority}} </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="assign">
+                            <th mat-header-cell *matHeaderCellDef> Asignar </th>
+                            <td mat-cell *matCellDef="let element">
+                                @if (element.status === 'OPEN' || element.status === 'PENDING') {
+                                    <mat-form-field appearance="fill" style="width: 120px; margin-right: 10px;">
+                                        <mat-label>Seleccionar Técnico</mat-label>
+                                        <mat-select [(value)]="selectedTechnicians[element.id]">
+                                            @for (tech of technicians; track tech.id) {
+                                                <mat-option [value]="tech.id">
+                                                    {{ tech.name }}
+                                                </mat-option>
+                                            }
+                                        </mat-select>
+                                    </mat-form-field>
+
+                                    <button mat-mini-fab color="accent" [disabled]="!selectedTechnicians[element.id]" (click)="assignIncident(element.id)">
+                                        <mat-icon>send</mat-icon>
+                                    </button>
+                                } @else {
+                                    <mat-icon color="primary">done_all</mat-icon>
+                                }
+                            </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="incidenceDisplayedColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: incidenceDisplayedColumns;"></tr>
+                        <tr class="mat-row" *matNoDataRow>
+                            <td class="mat-cell" colspan="7">No hay incidencias registradas.</td>
+                        </tr>
+                    </table>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stats-chart-card">
+            <mat-card-header>
+                <mat-card-title>Rendimiento por Técnico</mat-card-title>
+                <mat-card-subtitle>Incidencias asignadas vs. Técnicos.</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+                <div class="chart-wrapper">
+                    <canvas baseChart
+                        [data]="barChartData"
+                        [options]="barChartOptions"
+                        [type]="barChartType">
+                    </canvas>
+                </div>
+            </mat-card-content>
+        </mat-card>
+        
+    </div>
+</div>
