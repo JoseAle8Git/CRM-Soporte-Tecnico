@@ -18,7 +18,7 @@ public record IncidenceDashboardDTO(
 
         Long id,
         String title,
-        String Status,
+        String status,
         String priority,
         String clientName,
         String technicianName,

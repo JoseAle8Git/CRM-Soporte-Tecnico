@@ -27,7 +27,7 @@ public class UserController {
      * @param request
      * @return
      */
-    @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN', 'SCOPE_MANAGER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @PostMapping
     public ResponseEntity<UserBasicDTO> createUser(@Valid @RequestBody UserCreationRequest request) {
         try{
@@ -39,11 +39,56 @@ public class UserController {
         }
     }
 
-    @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN', 'SCOPE_MANAGER')")
+    /**
+     * Endpoint para obtener yodos los usuarios.
+     * @return
+     */
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @GetMapping("/basic-list")
     public ResponseEntity<List<UserBasicDTO>> getAllBasicUsers() {
         List<UserBasicDTO> users = userService.findAllBasicUsers();
         return ResponseEntity.ok(users);
+    }
+
+    /**
+     * Enpoint para obtener un usuario por Id.
+     * @param id
+     * @return
+     */
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
+    @GetMapping("/{id}")
+    public ResponseEntity<UserCreationRequest> getUserById(@PathVariable Long id){
+        UserCreationRequest user = userService.findUserById(id);
+        return ResponseEntity.ok(user);
+    }
+
+    /**
+     * Endpoint para actualizar un usuario existente.
+     * @param id
+     * @param request
+     * @return
+     */
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
+    @PutMapping("/{id}")
+    public ResponseEntity<UserBasicDTO> updateUser(@PathVariable Long id, @Valid @RequestBody UserCreationRequest request) {
+        try {
+            AppUser updatedUser = userService.updateUser(id, request);
+            return ResponseEntity.ok(UserBasicDTO.fromUser(updatedUser));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    /**
+     * Endpoint para eliminar un usuario.
+     * @param id
+     * @return
+     */
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id){
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 
 }

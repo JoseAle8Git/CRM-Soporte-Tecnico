@@ -1,16 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { UserService } from '../../../services/user-service';
 import { UserCreationRequest } from '../../../models/user-creation.interface';
-import { catchError, throwError } from 'rxjs';
+import { catchError, Observable, throwError } from 'rxjs';
 import { MatDivider } from '@angular/material/divider';
+import { UserBasic } from '../../../models/user-basic.interface';
 
 @Component({
   selector: 'app-user-create-dialog',
@@ -33,15 +34,19 @@ export class UserCreateDialog implements OnInit {
 
   userForm!: FormGroup;
   creatableRoles = ['TECH', 'CLIENT'];
+  servicePackages = ['Plan Esencial', 'Plan Profesional', 'Plan Corporativo']
   isLoading = false;
   submissionError: string | null = null;
 
   defaultPassword = 'Pass123!@#';
 
+  isEditMode = false;
+
   constructor(
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<UserCreateDialog>,
-    private userService: UserService
+    private userService: UserService,
+    @Inject(MAT_DIALOG_DATA) public data: { userId: number } | null
   ) { }
 
   ngOnInit(): void {
@@ -51,10 +56,19 @@ export class UserCreateDialog implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       telephone: [''],
       roleName: ['', Validators.required],
-      cif: [''],
-      clientId: [null],
+      companyName: [''],
+      packageName: [''],
+      cif: ['', Validators.required],
       rawPassword: [this.defaultPassword, [Validators.required]]
     });
+
+    if(this.data && this.data.userId) {
+      this.isEditMode = true;
+      this.userService.getUserById(this.data.userId).subscribe(user => {
+        this.userForm.patchValue(user);
+        this.userForm.get('username')?.disable();
+      })
+    }
 
     this.userForm.get('roleName')?.valueChanges.subscribe(role => {
       this.toggleClientFields(role);
@@ -63,17 +77,25 @@ export class UserCreateDialog implements OnInit {
 
   toggleClientFields(role: string): void {
     const cifControl = this.userForm.get('cif');
-    const clientIdControl = this.userForm.get('clientId');
+    const companyControl = this.userForm.get('companyName');
+    const packageControl = this.userForm.get('packageName');
 
     if(role === 'CLIENT') {
       cifControl?.setValidators(Validators.required);
-      clientIdControl?.setValidators(Validators.required);
+      companyControl?.setValidators(Validators.required);
+      packageControl?.setValidators(Validators.required);
     } else {
       cifControl?.clearValidators();
-      clientIdControl?.clearValidators();
+      companyControl?.clearValidators();
+      packageControl?.clearValidators();
+
+      cifControl?.setValue(null);
+      companyControl?.setValue('');
+      packageControl?.setValue('');
     }
     cifControl?.updateValueAndValidity();
-    clientIdControl?.updateValueAndValidity;
+    companyControl?.updateValueAndValidity();
+    packageControl?.updateValueAndValidity();
   }
 
   onSubmit(): void {
@@ -84,11 +106,19 @@ export class UserCreateDialog implements OnInit {
     }
 
     this.isLoading = true;
-    const request: UserCreationRequest = this.userForm.value;
+    const request: UserCreationRequest = this.userForm.getRawValue() as UserCreationRequest;
 
-    this.userService.createNewUser(request).pipe(
+    let operations: Observable<UserBasic>;
+
+    if(this.isEditMode) {
+      operations = this.userService.updateUser(this.data!.userId, request);
+    } else {
+      operations = this.userService.createNewUser(request);
+    }
+
+    operations.pipe(
       catchError(error => {
-        this.submissionError = 'Error: ' + (error.error || 'No se pudo crear el usuario.');
+        this.submissionError = 'Error' + (error.error || 'No se pudo guardar el servicio.');
         return throwError(() => error);
       })
     ).subscribe({
