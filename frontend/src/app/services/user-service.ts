@@ -30,7 +30,30 @@ export class UserService {
    */
   getAllBasicUsers(): Observable<UserBasic[]> {
     // Endpoint: /users/basic-list.
-    return this.http.get<UserBasic[]>(`%{USER_API_URL}/basic-list`, { withCredentials: true });
+    return this.http.get<UserBasic[]>(`${USER_API_URL}/basic-list`, { withCredentials: true });
+  }
+
+  /**
+   * Obtiene un usuario para el formulario de edición.
+   * @param userId 
+   * @returns 
+   */
+  getUserById(userId: number): Observable<UserCreationRequest> {
+    return this.http.get<UserCreationRequest>(`${USER_API_URL}/${userId}`, { withCredentials: true});
+  }
+
+  /**
+   * Envías los datos modificados del usuario. Protegido por JWT.
+   * @param userId 
+   * @param request 
+   * @returns 
+   */
+  updateUser(userId: number, request: UserCreationRequest): Observable<UserBasic> {
+    return this.http.put<UserBasic>(`${USER_API_URL}/${userId}`, request, { withCredentials: true });
+  }
+
+  deleteUser(userId: number): Observable<void> {
+    return this.http.delete<void>(`${USER_API_URL}/${userId}`, { withCredentials: true });
   }
 
 }

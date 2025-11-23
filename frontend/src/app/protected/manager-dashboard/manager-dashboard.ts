@@ -18,7 +18,7 @@ import { UserBasic } from '../../models/user-basic.interface';
 import { AssignmentRequest, IncidenceDashboard } from '../../models/incidence-dashboard.interface';
 import { IncidenceService } from '../../services/incidence-service';
 import { BaseChartDirective } from 'ng2-charts';
-import { ChartConfiguration, ChartType } from 'chart.js';
+import { Chart, ChartConfiguration, ChartType, registerables } from 'chart.js';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDividerModule } from '@angular/material/divider'
 import { RouterLink } from '@angular/router';
@@ -68,7 +68,9 @@ export class ManagerDashboard implements OnInit {
     private authService: Auth,
     private dialog: MatDialog,
     private incidenceService: IncidenceService
-  ) { }
+  ) { 
+    Chart.register(...registerables);
+  }
 
   ngOnInit(): void {
     // Cargar los datos iniciales al arrancar el dashboard.
@@ -180,6 +182,35 @@ export class ManagerDashboard implements OnInit {
     ]
   }
 
-  
+  /**
+   * Abrir diálogo de edición. Se reutiliza el de creación.
+   * @param userId
+   */
+  openEditUserDialog(userId: number): void {
+    const dialogRef = this.dialog.open(UserCreateDialog, {
+      width: '600px',
+      data: { userId: userId }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if(result === true) {
+        this.loadDashboardData();
+      }
+    });
+  }
+
+  confirmDelete(userId: number, userName: string): void {
+    if(confirm(`¿Estás seguro de que deseas eliminar al usuario ${userName} (ID: ${userId})?`)) {
+      this.userService.deleteUser(userId).subscribe({
+        next: () => {
+          alert(`Usuario ${userName} eliminado.`);
+          this.loadDashboardData();
+        },
+        error: (err) => {
+          console.error("Error al eliminar:", err);
+          alert("Error al eliminar el usuario. Verifique sus permisos.");
+        }
+      })
+    }
+  }
 
 }

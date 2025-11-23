@@ -48,8 +48,11 @@
                         <ng-container matColumnDef="actions">
                             <th mat-header-cell *matHeaderCellDef> Acciones </th>
                             <td mat-cell *matCellDef="let element"> 
-                                <button mat-icon-button color="accent" [disabled]="true">
+                                <button mat-icon-button color="accent" (click)="openEditUserDialog(element.id)">
                                     <mat-icon>edit</mat-icon>
+                                </button>
+                                <button mat-icon-button color="warn" (click)="confirmDelete(element.id, element.name)">
+                                    <mat-icon>delete</mat-icon>
                                 </button>
                             </td>
                         </ng-container>
