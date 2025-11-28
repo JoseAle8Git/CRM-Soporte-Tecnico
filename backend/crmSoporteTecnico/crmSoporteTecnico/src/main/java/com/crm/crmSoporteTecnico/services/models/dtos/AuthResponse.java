@@ -12,7 +12,7 @@ public record AuthResponse(
         String role
 ) {
     /**
-     * Método estático para crear el DTO desde la entidad user.
+     * Metodo estático para crear el DTO desde la entidad user.
      * @param user
      * @return
      */

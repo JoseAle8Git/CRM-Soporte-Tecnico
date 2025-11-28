@@ -1,12 +1,16 @@
 package com.crm.crmSoporteTecnico.services.impl;
 
 import com.crm.crmSoporteTecnico.persistence.entities.AppUser;
+import com.crm.crmSoporteTecnico.persistence.entities.Client;
 import com.crm.crmSoporteTecnico.persistence.entities.Incidence;
+import com.crm.crmSoporteTecnico.persistence.enums.IncidencePriority;
 import com.crm.crmSoporteTecnico.persistence.enums.IncidenceStatus;
+import com.crm.crmSoporteTecnico.persistence.repositories.ClientRepository;
 import com.crm.crmSoporteTecnico.persistence.repositories.IncidenceRepository;
 import com.crm.crmSoporteTecnico.persistence.repositories.UserRepository;
 import com.crm.crmSoporteTecnico.services.IIncidenceService;
 import com.crm.crmSoporteTecnico.services.INotificationService;
+import com.crm.crmSoporteTecnico.services.models.dtos.CreateIncidenceDTO;
 import com.crm.crmSoporteTecnico.services.models.dtos.IncidenceAssignmentRequest;
 import com.crm.crmSoporteTecnico.services.models.dtos.IncidenceDashboardDTO;
 import org.springframework.stereotype.Service;
@@ -22,15 +26,18 @@ public class IncidenceServiceImpl implements IIncidenceService {
     private final IncidenceRepository incidenceRepository;
     private final UserRepository userRepository;
     private final INotificationService notificationService;
+    private final ClientRepository clientRepository;
 
-    public IncidenceServiceImpl(IncidenceRepository incidenceRepository, UserRepository userRepository, INotificationService notificationService) {
+    public IncidenceServiceImpl(IncidenceRepository incidenceRepository, UserRepository userRepository, INotificationService notificationService, ClientRepository clientRepository) {
         this.incidenceRepository = incidenceRepository;
         this.userRepository = userRepository;
         this.notificationService = notificationService;
+        this.clientRepository = clientRepository;
     }
 
     /**
      * Retorna todas las incidencias para la tabla del Dashboard.
+     *
      * @return
      */
     @Override
@@ -42,6 +49,7 @@ public class IncidenceServiceImpl implements IIncidenceService {
 
     /**
      * Asigna la incidencia y notifica al técnico.
+     *
      * @param request
      * @return
      */
@@ -68,5 +76,41 @@ public class IncidenceServiceImpl implements IIncidenceService {
         return IncidenceDashboardDTO.fromIncidence(updatedIncidence);
 
     }
+
+    /**
+     * Implementación de la creación de incidencia.
+     */
+    @Override
+    @Transactional
+    // AHORA RECIBIMOS EL USUARIO 'creatorUser' (El que está logueado)
+    public IncidenceDashboardDTO createIncidence(CreateIncidenceDTO request, AppUser creatorUser) {
+
+        Client client = clientRepository.findById(creatorUser.getId())
+                .orElseThrow(() -> new IllegalArgumentException("¡ERROR CRÍTICO! El usuario ID " + creatorUser.getId() + " no existe en la tabla 'client'."));
+
+        IncidencePriority priority = IncidencePriority.valueOf(request.priority().toUpperCase());
+        // 1. Crear la entidad Incidence
+        Incidence newIncidence = new Incidence(
+                null,
+                request.title(),
+                request.description(),
+                priority,
+                IncidenceStatus.PENDING,
+                LocalDateTime.now(),
+                null,
+                client,
+                null,
+                null
+        );
+
+        // Guardar
+        Incidence savedIncidence = incidenceRepository.save(newIncidence);
+
+        // 6. Notificar (Si lo tienes activado)
+        notificationService.notifyManagerNewIncidence(savedIncidence, request);
+
+        return IncidenceDashboardDTO.fromIncidence(savedIncidence);
+    }
+
 
 }

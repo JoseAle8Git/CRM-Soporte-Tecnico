@@ -16,4 +16,10 @@ public interface IncidenceRepository extends JpaRepository<Incidence, Long> {
     @Query("SELECT i.technician.name, COUNT(i) FROM Incidence i WHERE i.technician IS NOT NULL GROUP BY i.technician.name ORDER BY COUNT(i) DESC")
     List<Object[]> countIncidenceByTechnicianName();
 
+    // BUSCAR POR ID DE CLIENTE
+    // Esto hace: SELECT * FROM incidence WHERE client_id = ?
+    List<Incidence> findByClientId(Long clientId);
+
+
 }
+

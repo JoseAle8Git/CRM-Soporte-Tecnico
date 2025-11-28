@@ -42,7 +42,7 @@ public class Incidence {
     @Column(name = "assignment_date")
     private LocalDateTime assignmentDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 

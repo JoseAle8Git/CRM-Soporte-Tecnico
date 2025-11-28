@@ -1,7 +1,8 @@
 /* Layout general */
 .dashboard-container {
   padding: 24px;
-  background-color: #f5f5f5; /* Fondo gris suave típico de Material */
+  background-color: #f5f5f5;
+  /* Fondo gris suave típico de Material */
   min-height: 100vh;
 }
 
@@ -15,8 +16,10 @@
 
 /* Icono de usuario grande */
 .large-icon {
-  transform: scale(2); /* Hacemos el icono x2 de grande */
-  color: #673ab7;      /* Color morado material */
+  transform: scale(2);
+  /* Hacemos el icono x2 de grande */
+  color: #673ab7;
+  /* Color morado material */
 }
 
 /* GRID LAYOUT (Esto se mantiene igual porque organiza las cajas) */
@@ -39,11 +42,75 @@
 }
 
 .no-data {
-  color: #7cb342; /* Verde material */
+  color: #7cb342;
+  /* Verde material */
   font-weight: 500;
 }
 
 /* Ajuste específico para cards de Material */
 mat-card {
-  height: 100%; /* Para que ocupen toda la altura de la celda del grid */
+  height: 100%;
+  /* Para que ocupen toda la altura de la celda del grid */
 }
+
+.tickets-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.tickets-table th {
+  text-align: left;
+  color: #777;
+  font-size: 0.9rem;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.tickets-table td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+/* Badges de colores */
+.badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+.darkRed {
+  background: #ffebee;
+  color: #58151c;
+}
+
+.red {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.yellow {
+  background: #fff8e1;
+  color: #fbc02d;
+}
+
+.green {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-pill {
+  background: #e3f2fd;
+  color: #1565c0;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+}
+
+.table-container {
+  max-height: 250px;
+  overflow-y: auto;
+  display: block;
+}
+
+

@@ -6,9 +6,10 @@ import java.time.LocalDateTime;
 
 /**
  * DTO para la lista de incidencias en el Dashboard del Manager.
+ *
  * @param id
  * @param title
- * @param Status
+ * @param status
  * @param priority
  * @param clientName
  * @param technicianName
@@ -18,7 +19,7 @@ public record IncidenceDashboardDTO(
 
         Long id,
         String title,
-        String Status,
+        String status,
         String priority,
         String clientName,
         String technicianName,
@@ -28,6 +29,7 @@ public record IncidenceDashboardDTO(
 
     /**
      * Método estático para mapear la entidad a este DTO.
+     *
      * @param incidence
      * @return
      */

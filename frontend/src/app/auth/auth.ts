@@ -79,5 +79,16 @@ export class Auth {
   getUserData(): string | null {
     return this.currentUser ? this.currentUser.username : null;
   }
+  // Añade esto en auth.ts para poder leer el ID desde fuera
+  get currentUserId(): number | null {
+    // Si currentUser es null, intenta recargarlo del localStorage por si acaso
+    if (!this.currentUser) {
+      const stored = localStorage.getItem('currentUser'); // O como llames a la clave
+      if (stored) {
+        this.currentUser = JSON.parse(stored);
+      }
+    }
+    return this.currentUser ? this.currentUser.userId : null; // userId o id (revisa tu modelo)
+  }
 
 }

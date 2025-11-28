@@ -70,7 +70,7 @@ public class AuthServiceImpl implements IAuthService {
     }
 
     /**
-     * Método auxiliar para obtener el rol.
+     * Metodo auxiliar para obtener el rol.
      * @param username
      * @return
      */
