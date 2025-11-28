@@ -8,5 +8,8 @@ export interface UserCreationRequest {
     telephone: string | null;
     rawPassword: string;
     roleName: string;
+    companyName: string;
+    cif: string;
+    packageName: string;
     clientId: number | null;
 }

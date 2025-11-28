@@ -36,8 +36,7 @@ public class IncidenceController {
      *
      * @return
      */
-
-    @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN', 'SCOPE_MANAGER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @GetMapping("/dashboard-list")
     public ResponseEntity<List<IncidenceDashboardDTO>> getDashboardIncidence() {
         List<IncidenceDashboardDTO> incidences = incidenceService.findAllIncidencesForDashboard();
@@ -50,7 +49,7 @@ public class IncidenceController {
      * @param request
      * @return
      */
-    @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN', 'SCOPE_MANAGER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @PostMapping("/assign")
     public ResponseEntity<IncidenceDashboardDTO> assignTechnician(@Valid @RequestBody IncidenceAssignmentRequest request) {
         try {

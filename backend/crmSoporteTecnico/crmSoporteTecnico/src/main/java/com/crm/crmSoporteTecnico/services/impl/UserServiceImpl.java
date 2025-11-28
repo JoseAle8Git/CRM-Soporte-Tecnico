@@ -4,6 +4,7 @@ import com.crm.crmSoporteTecnico.persistence.entities.AppUser;
 import com.crm.crmSoporteTecnico.persistence.entities.Client;
 import com.crm.crmSoporteTecnico.persistence.entities.Rol;
 import com.crm.crmSoporteTecnico.persistence.repositories.ClientRepository;
+import com.crm.crmSoporteTecnico.persistence.repositories.IncidenceRepository;
 import com.crm.crmSoporteTecnico.persistence.repositories.RolRepository;
 import com.crm.crmSoporteTecnico.persistence.repositories.UserRepository;
 import com.crm.crmSoporteTecnico.services.INotificationService;
@@ -28,13 +29,15 @@ public class UserServiceImpl implements IUserService {
     private final ClientRepository clientRepository;
     private final PasswordEncoder passwordEncoder;
     private final INotificationService notificationService;
+    private final IncidenceRepository incidenceRepository;
 
-    public UserServiceImpl(UserRepository userRepository, RolRepository rolRepository, ClientRepository clientRepository, PasswordEncoder passwordEncoder, INotificationService notificationService) {
+    public UserServiceImpl(UserRepository userRepository, RolRepository rolRepository, ClientRepository clientRepository, PasswordEncoder passwordEncoder, INotificationService notificationService, IncidenceRepository incidenceRepository) {
         this.userRepository = userRepository;
         this.rolRepository = rolRepository;
         this.clientRepository = clientRepository;
         this.passwordEncoder = passwordEncoder;
         this.notificationService = notificationService;
+        this.incidenceRepository = incidenceRepository;
     }
 
     /**
@@ -57,13 +60,22 @@ public class UserServiceImpl implements IUserService {
         // Obtener rol y cliente.
         Rol rol = rolRepository.findByName(request.roleName())
                 .orElseThrow(() -> new IllegalArgumentException("Rol no encontrado."));
-        Client client = null;
+        Client newClient = null;
         if(request.roleName().equalsIgnoreCase("CLIENT")) {
-            if(request.clientId() == null) {
-                throw new IllegalArgumentException("Se requiere el ID de cliente para el rol CLIENT.");
+            if(clientRepository.existsByCif(request.cif())) {
+                throw new IllegalArgumentException("El ncif de la empresa ya existe.");
             }
-            client = clientRepository.findById(request.clientId())
-                    .orElseThrow(() -> new IllegalArgumentException("Cliente no encontrado."));
+
+            newClient = new Client(
+                    null,
+                    request.companyName(),
+                    request.cif(),
+                    null,
+                    true,
+                    request.packageName(),
+                    null
+            );
+            newClient = clientRepository.save(newClient);
         }
 
         // Creación de la entidad.
@@ -77,7 +89,7 @@ public class UserServiceImpl implements IUserService {
                 request.telephone(),
                 request.email(),
                 rol,
-                client
+                newClient
         );
         AppUser savedUser = userRepository.save(newUser);
 
@@ -94,6 +106,66 @@ public class UserServiceImpl implements IUserService {
     @Override
     public List<UserBasicDTO> findAllBasicUsers() {
         return userRepository.findAll().stream().map(UserBasicDTO::fromUser).collect(Collectors.toList());
+    }
+
+    /**
+     * Actualizar un usuario.
+     * @param userId
+     * @param request
+     * @return
+     */
+    @Override
+    @Transactional
+    public AppUser updateUser(Long userId, UserCreationRequest request) {
+        AppUser existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado para edición."));
+        existingUser.setName(request.name());
+        existingUser.setEmail(request.email());
+        existingUser.setTelephone(request.telephone());
+        if(request.rawPassword() != null && !request.rawPassword().isBlank()) {
+            String encodedPassword = passwordEncoder.encode(request.rawPassword());
+            existingUser.setPassword(encodedPassword);
+        }
+        return userRepository.save(existingUser);
+    }
+
+    /**
+     * Borrar un usuario por Id.
+     * @param userId
+     */
+    @Override
+    @Transactional
+    public void deleteUser(Long userId) {
+        boolean hasAssignedIncidence = incidenceRepository.existsByTechnicianId(userId);
+        AppUser userToDelete = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado."));
+        if(hasAssignedIncidence) {
+            throw new IllegalArgumentException("No se puede eliminar el usuario. Aún tiene incidencias asignadas.");
+        }
+        if(userToDelete.getClient() != null) {
+            Client client = userToDelete.getClient();
+            client.setActive(false);
+            clientRepository.save(client);
+        }
+        userRepository.deleteById(userId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserCreationRequest findUserById(Long userId) {
+        AppUser user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado."));
+        return new UserCreationRequest(
+                user.getUsername(),
+                user.getName(),
+                user.getEmail(),
+                user.getTelephone(),
+                null,
+                user.getRol().getName(),
+                null,
+                null,
+                null
+        );
     }
 
 }

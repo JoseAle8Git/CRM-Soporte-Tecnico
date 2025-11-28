@@ -25,7 +25,7 @@ public record UserCreationRequest(
         @NotBlank(message = "La contraseña temporal es obligatorio.")
         @Size(min = 8, max = 12, message = "La contraseña debe tener entre 8 y 12 caracteres.")
         @Pattern(
-                regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\\\d)(?=.*[@$!%*?&])[A-Za-z\\\\d@$!%*?&]{8,12}$",
+                regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,12}$",
                 message = "La contraseña debe contener al menos una mayúscula, minúscula, número y carácter especial."
         )
         String rawPassword,
@@ -33,7 +33,11 @@ public record UserCreationRequest(
         @NotBlank(message = "El rol es obligatorio.")
         String roleName,
 
-        Long clientId
+        String companyName,
+
+        String cif,
+
+        String packageName
 
 ) {
 }

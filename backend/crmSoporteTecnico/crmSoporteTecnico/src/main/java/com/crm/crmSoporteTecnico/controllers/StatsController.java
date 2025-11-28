@@ -20,7 +20,7 @@ public class StatsController {
         this.statsService = statsService;
     }
 
-    @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN', 'SCOPE_MANAGER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @GetMapping("/incidences-by-tech")
     public ResponseEntity<List<TechnicianStatsDTO>> getIncidenceCountsByTechnician() {
         List<TechnicianStatsDTO> stats = statsService.getIncidenceCountsByTechnician();

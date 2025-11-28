@@ -18,12 +18,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.jwt.*;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.web.SecurityFilterChain;
@@ -53,7 +53,6 @@ public class SecurityConfig {
 
     /**
      * Inyección de las propiedades de las llaves RSA.
-     *
      * @param rsaKeys
      */
     public SecurityConfig(RsaKeyProperties rsaKeys) {
@@ -62,7 +61,6 @@ public class SecurityConfig {
 
     /**
      * Definición del passwordEncoder.
-     *
      * @return
      */
     @Bean
@@ -82,7 +80,7 @@ public class SecurityConfig {
     }
 
     private RSAPrivateKey loadPrivateKey() throws Exception {
-        String key = new String(rsaKeys.privateKeyLocation().getInputStream().readAllBytes(), StandardCharsets.UTF_8)
+        String key = new String(rsaKeys.privateKeyLocation().getInputStream().readAllBytes(),  StandardCharsets.UTF_8)
                 .replace("-----BEGIN PRIVATE KEY-----", "")
                 .replace("-----END PRIVATE KEY-----", "")
                 .replaceAll("\\s", "");
@@ -93,7 +91,6 @@ public class SecurityConfig {
 
     /**
      * definción de la cadena de filtros de seguridad.
-     *
      * @param http
      * @return
      * @throws Exception
@@ -112,9 +109,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> {
-                        })
-                        .jwt(jwt -> {})
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
                         .bearerTokenResolver(cookieTokenResolver())
                 )
                 .sessionManagement(session -> session
@@ -126,6 +121,21 @@ public class SecurityConfig {
                 )
                 .build();
 
+    }
+
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+        converter.setJwtGrantedAuthoritiesConverter((Jwt jwt) -> {
+            String role = jwt.getClaimAsString("role");
+
+            if(role == null){
+                return Collections.emptyList();
+            }
+
+            return Collections.singletonList(new SimpleGrantedAuthority(role));
+        });
+        return converter;
     }
 
     @Bean
@@ -168,7 +178,6 @@ public class SecurityConfig {
 
     /**
      * Bean para decodificar (Verificar) el JWT.
-     *
      * @return
      */
     @Bean
@@ -178,7 +187,6 @@ public class SecurityConfig {
 
     /**
      * Bean para codificar (Crear) el JWT.
-     *
      * @return
      */
     @Bean

@@ -72,28 +72,33 @@ public class NotificationServiceImpl implements INotificationService {
 
         System.out.println("Iniciando envío asíncrono de credenciales a: " + user.getEmail());
 
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, "utf-8");
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(SENDER_EMAIL);
+        message.setTo(user.getEmail());
+        message.setSubject("Bienvenido al CRM - Credenciales de Acceso");
+
+        String body = String.format(
+                "¡Hola %s!\n" +
+                        "Has sido registrado en nuestro CRM de Soporte Técnico como un usuario %s.\n" +
+                        "Utiliza las siguientes credenciales para acceder:\n" +
+                        " - URL de Acceso: http://localhost:4200\n" +
+                        " - Usuario (Username): %s\n" +
+                        " - Contraseña temporal: %s\n" +
+                        "Por favor, cambia tu contraseña al iniciar sesión por primera vez.",
+                user.getName(),
+                user.getRol().getName(),
+                user.getName(),
+                user.getUsername(),
+                rawPassword
+        );
+
+        message.setText(body);
 
         try {
-            helper.setTo(user.getEmail());
-            helper.setSubject("Bienvenido al CRM - Credenciales de Acceso");
-            String htmlContent = String.format(
-                    "<html><body>" +
-                            "<h2>¡Hola %s!</h2>" +
-                            "<p>Has sido registrado en nuestro CRM de Soporte Técnico con el rol de <b>%s</b>.</p>" +
-                            "<p>Utiliza las siguientes credenciales para acceder:</p>" +
-                            "<ul>" +
-                            "<li><b>URL de Acceso:</b> http://localhost:4200</li>" +
-                            "<li><b>Usuario (Username):</b> %s</li>" +
-                            "<li><b>Contraseña Temporal:</b> %s</li>" +
-                            "</ul>" +
-                            "<p>Por favor, cambia tu contraseña al iniciar sesión por primera vez.</p>" +
-                            "</body></html>",
-                    user.getName(), user.getRol().getName(), user.getUsername(), rawPassword
-            );
+            mailSender.send(message);
+            System.out.println("Notificación de credenciales enviada correctamente.");
         } catch (Exception ex) {
-            System.err.println("Error al enviar correo de credenciales: " + ex.getMessage());
+            System.out.println("Error al enviar la notificación: " + ex.getMessage());
         }
 
     }
@@ -162,7 +167,7 @@ public class NotificationServiceImpl implements INotificationService {
 
             helper.setFrom(SENDER_EMAIL);
             helper.setTo(MANAGER_EMAIL);
-            helper.setSubject("🚨 NUEVA INCIDENCIA CREADA - ID #" + incidence.getId());
+            helper.setSubject("NUEVA INCIDENCIA CREADA - ID #" + incidence.getId());
 
             String htmlContent = String.format(
                     "<html><body>" +

@@ -52,17 +52,25 @@
 
         <mat-form-field appearance="outline" class="full-width">
             <mat-label>Contraseña Temporal</mat-label>
-            <input matInput formControlName="rawPassword" readonly> 
+            <input matInput formControlName="rawPassword"> 
             <mat-icon matSuffix color="warn">lock</mat-icon>
-            <mat-hint>Se enviará por correo al usuario.</mat-hint>
+            <mat-hint>Se enviará por correo al usuario. La política exige mayúscula, minúscula, número y símbolo.</mat-hint>
         </mat-form-field>
 
         <mat-divider style="margin: 20px 0;"></mat-divider>
         
-        @if (userForm.get('roleName')?.value === 'CLIENTE') {
+        @if (userForm.get('roleName')?.value === 'CLIENT') {
             <div class="client-data-group">
                 <h3>Datos de la Empresa (Cliente)</h3>
-                
+        
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Nombre de la Empresa</mat-label>
+                    <input matInput formControlName="companyName" required>
+                    @if (userForm.get('companyName')?.hasError('required') && userForm.get('companyName')?.touched) {
+                        <mat-error>El nombre de la empresa es obligatorio.</mat-error>
+                    }
+                </mat-form-field>
+        
                 <mat-form-field appearance="outline" class="full-width">
                     <mat-label>CIF / NIF</mat-label>
                     <input matInput formControlName="cif" required>
@@ -70,12 +78,16 @@
                         <mat-error>El CIF/NIF es obligatorio para clientes.</mat-error>
                     }
                 </mat-form-field>
-                
+
                 <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>ID de Cliente (Empresa)</mat-label>
-                    <input matInput formControlName="clientId" type="number" required>
-                    @if (userForm.get('clientId')?.hasError('required') && userForm.get('clientId')?.touched) {
-                        <mat-error>El ID de la empresa es obligatorio.</mat-error>
+                    <mat-label>Paquete de Servicio Contratado</mat-label>
+                    <mat-select formControlName="packageName" required>
+                        @for (pkg of servicePackages; track pkg) {
+                            <mat-option [value]="pkg">{{ pkg }}</mat-option>
+                        }
+                    </mat-select>
+                    @if (userForm.get('packageName')?.hasError('required') && userForm.get('packageName')?.touched) {
+                        <mat-error>El paquete de servicio es obligatorio.</mat-error>
                     }
                 </mat-form-field>
             </div>

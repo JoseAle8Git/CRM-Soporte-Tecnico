@@ -20,6 +20,12 @@ public interface IncidenceRepository extends JpaRepository<Incidence, Long> {
     // Esto hace: SELECT * FROM incidence WHERE client_id = ?
     List<Incidence> findByClientId(Long clientId);
 
+    /**
+     * Verifica si existe alguna incidencia asignada a ese técnico.
+     * @param id
+     * @return
+     */
+    Boolean existsByTechnicianId(Long id);
 
 }
 
