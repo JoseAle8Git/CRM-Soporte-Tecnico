@@ -1,0 +1,38 @@
+<h2 mat-dialog-title style="display: flex; align-items: center; gap: 10px;">
+  <mat-icon>add_alert</mat-icon> Nueva Incidencia
+</h2>
+
+<mat-dialog-content>
+  <div style="display: flex; flex-direction: column; gap: 15px; min-width: 400px; padding-top: 10px;">
+    
+    <mat-form-field appearance="outline">
+      <mat-label>Asunto</mat-label>
+      <input matInput [(ngModel)]="ticket.title" placeholder="Ej: No puedo acceder a la base de datos" required>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Prioridad</mat-label>
+      <mat-select [(ngModel)]="ticket.priority" required>
+        <mat-option value="LOW">🟢 Baja</mat-option>
+        <mat-option value="MEDIUM">🟡 Media</mat-option>
+        <mat-option value="HIGH">🔴 Alta</mat-option>
+        <mat-option value="CRITICAL">🔴 Altisimo</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Descripción detallada</mat-label>
+      <textarea matInput [(ngModel)]="ticket.description" rows="5" placeholder="Explica qué ha pasado..." required></textarea>
+    </mat-form-field>
+
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancelar</button>
+  
+  <button mat-flat-button color="primary" (click)="save()" 
+          [disabled]="!ticket.title || !ticket.description">
+    Enviar Ticket
+  </button>
+</mat-dialog-actions>

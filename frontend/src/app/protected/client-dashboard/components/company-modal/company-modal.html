@@ -13,35 +13,13 @@
 
   <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
     
-    <mat-tab label="Mi Equipo">
-      <div style="margin-top: 15px;">
-        <table mat-table [dataSource]="data.users" class="mat-elevation-z1" style="width: 100%;">
-          
-          <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef> Nombre </th>
-            <td mat-cell *matCellDef="let u"> {{ u.name }} </td>
-          </ng-container>
-
-          <ng-container matColumnDef="username">
-            <th mat-header-cell *matHeaderCellDef> Usuario </th>
-            <td mat-cell *matCellDef="let u"> @{{ u.username }} </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="['name', 'username']"></tr>
-          <tr mat-row *matRowDef="let row; columns: ['name', 'username'];"></tr>
-        </table>
-        
-        @if(data.users.length === 0) { <p style="padding:10px; color:grey;">No hay otros usuarios.</p> }
-      </div>
-    </mat-tab>
-
     <mat-tab label="Facturación y Clientes">
       <div style="margin-top: 15px;">
         <table mat-table [dataSource]="data.subClients" class="mat-elevation-z1" style="width: 100%;">
           
           <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef> Cliente </th>
-            <td mat-cell *matCellDef="let c"> <strong>{{ c.name }}</strong> </td>
+            <td mat-cell *matCellDef="let c"> <strong>{{ c.company_name }}</strong> </td>
           </ng-container>
 
           <ng-container matColumnDef="active">

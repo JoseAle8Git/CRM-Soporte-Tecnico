@@ -42,18 +42,22 @@
         </button>
       </mat-card-actions>
     </mat-card>
-
     <mat-card appearance="outlined">
       <mat-card-header>
         <mat-card-title>Métricas</mat-card-title>
       </mat-card-header>
 
-      <mat-card-content class="centered-content">
+      <mat-card-content class="centered-content" style="height: 300px; display: block;">
+
         @if (chartData()) {
-        <p>Gráfico...</p>
+        <canvas baseChart [data]="chartData()!" [options]="barChartOptions" [type]="barChartType">
+        </canvas>
         } @else {
-        <p class="no-data">No hay datos registrados</p>
+        <div class="no-data-container">
+          <p class="no-data">Cargando gráfico...</p>
+        </div>
         }
+
       </mat-card-content>
     </mat-card>
 
@@ -63,18 +67,56 @@
       </mat-card-header>
 
       <mat-card-content>
+
         @if (tickets().length > 0) {
-        <p>Lista...</p>
+        <div class="table-container">
+          <table class="tickets-table">
+            <thead>
+              <tr>
+                <th>Asunto</th>
+                <th>Prioridad</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (ticket of tickets(); track ticket.id) {
+              <tr>
+
+                <td><strong>{{ ticket.title }}</strong></td>
+
+                <td>
+                  @if(ticket.priority == 'CRITICAL' || ticket.priority == 'CRITICAL') { <span
+                    class="badge darkRed">Critica</span> }
+                  @else if(ticket.priority == 'ALTA' || ticket.priority == 'HIGH') { <span class="badge red">Alta</span>
+                  }
+                  @else if(ticket.priority == 'MEDIA' || ticket.priority == 'MEDIUM') { <span
+                    class="badge yellow">Media</span> }
+                  @else { <span class="badge green">Baja</span> }
+                </td>
+
+                <td>
+                  <span class="status-pill">{{ ticket.status }}</span>
+                </td>
+
+                <td>{{ ticket.creationDate | date:'dd/MM/yyyy' }}</td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
         } @else {
         <div class="centered-content" style="padding: 40px 0;">
           <p class="no-data">No hay tickets recientes</p>
         </div>
         }
+
       </mat-card-content>
 
       <mat-card-actions align="end">
-        <button mat-stroked-button color="primary">
-          <mat-icon>folder_open</mat-icon> Gestionar
+        <button mat-stroked-button color="primary" (click)="openCreateTicket()">
+          <mat-icon>add_box</mat-icon> Gestionar / Crear
         </button>
       </mat-card-actions>
     </mat-card>

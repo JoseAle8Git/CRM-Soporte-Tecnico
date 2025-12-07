@@ -20,7 +20,7 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
     Client findByCif(String cif);
 
     /**
-     * Método para verificar si un NIF/CIF ya existe.
+     * Metodo para verificar si un NIF/CIF ya existe.
      * @param cif
      * @return
      */

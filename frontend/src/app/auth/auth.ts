@@ -80,4 +80,15 @@ export class Auth {
     return this.currentUser ? this.currentUser.username : null;
   }
 
+  get currentUserId(): number | null {
+
+    if (!this.currentUser) {
+      const stored = localStorage.getItem('currentUser'); 
+      if (stored) {
+        this.currentUser = JSON.parse(stored);
+      }
+    }
+    return this.currentUser ? this.currentUser.userId : null;
+  }
+
 }

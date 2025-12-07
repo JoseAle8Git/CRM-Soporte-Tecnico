@@ -3,84 +3,137 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatDialog } from '@angular/material/dialog'; // Importante para abrir la ventana
-
-// TUS IMPORTS PROPIOS
+import { MatDialog } from '@angular/material/dialog';
+import { DatePipe } from '@angular/common';
+import { BaseChartDirective } from 'ng2-charts';
+import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
+import { IncidenceService } from '../../services/incidence-service';
 import { Auth } from '../../auth/auth';
 import { ClientService, ClientData } from '../../services/client';
 import { CompanyModalComponent } from './components/company-modal/company-modal';
-// ^ Asegúrate de que la ruta a 'components/company-modal...' sea correcta según tu carpeta
+import { CreateIncidenceModalComponent } from './components/create-incidence-modal/create-incidence-modal';
+
+
 
 @Component({
   selector: 'app-client-dashboard',
   standalone: true,
-  imports: [MatCardModule, MatButtonModule, MatIconModule, MatDividerModule],
+  imports: [MatCardModule, MatButtonModule, MatIconModule, MatDividerModule, DatePipe, BaseChartDirective],
   templateUrl: './client-dashboard.html',
   styleUrl: './client-dashboard.css',
 })
 export class ClientDashboard implements OnInit {
 
-  // 1. Inyecciones de dependencias
   private authService = inject(Auth);
-  private clientService = inject(ClientService); // Para pedir datos al backend
-  private dialog = inject(MatDialog); // Para abrir el modal
+  private clientService = inject(ClientService);
+  private dialog = inject(MatDialog);
+  private incidenceService = inject(IncidenceService);
 
-  // 2. Signals
+  // SIGNALS
   userName = signal<string>('Cargando...');
-
-  // Aquí guardaremos los datos de la empresa (Nombre, CIF, Plan...)
   companyData = signal<ClientData | null>(null);
+  chartData = signal<ChartData<'bar'> | null>(null);
 
-  chartData = signal<any>(null);
+  // aqui se guardan los tickets
   tickets = signal<any[]>([]);
 
+  // config del gráfico
+  public barChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false, // pa q se ajuste bien
+    plugins: {
+      legend: { display: false } 
+    }
+  };
+  public barChartType: ChartType = 'bar';
+
   ngOnInit() {
-    // A. Cargar nombre del usuario (Header)
+    // carga usuario
     const userInDb = this.authService.getUserData();
-    if (userInDb) {
-      this.userName.set(userInDb.toString());
+    if (userInDb) this.userName.set(userInDb.toString());
+
+    // carga empresa y sub clientes
+    const myClientId = this.authService.currentUserId;
+
+    if (myClientId) {
+      this.clientService.getClientById(myClientId).subscribe({
+        next: (data) => {
+          this.companyData.set(data);
+          this.loadChartData(data.id);
+        },
+        error: (e) => console.error('Error cargando empresa:', e)
+      });
     }
 
-    // B. Cargar datos de la empresa
-    // TRUCO: Usamos el ID 1 fijo para probar lo que metimos en SQL.
-    // Más adelante cambiarás el 1 por: this.authService.getClientId()
-    const myClientId = 1;
+    // cargar tickets
+    const myId = this.authService.currentUserId;
+    if (myId) {
+      this.loadTickets(myId);
+    }
+  }
 
-    this.clientService.getClientById(myClientId).subscribe({
-      next: (data) => {
-        console.log('Empresa cargada:', data);
-        this.companyData.set(data);
+  //grafico logica
+  loadChartData(companyId: number) {
+    this.clientService.getSubClients(companyId).subscribe({
+      next: (subClients: any[]) => {
+        // 1. Mapeamos los nombres usando 'company_name'
+        const nombres = subClients.map(c => c.company_name);
+        // 2. Mapeamos la facturación usando 'billing'
+        const facturacion = subClients.map(c => c.billing);
+
+        this.chartData.set({
+          labels: nombres,
+          datasets: [
+            {
+              data: facturacion,
+              label: 'Facturación (€)',
+              backgroundColor: ['#3f51b5', '#ff4081', '#4caf50', '#ff9800'], 
+              borderRadius: 5
+            }
+          ]
+        });
       },
-      error: (e) => console.error('Error cargando empresa:', e)
+      error: (e) => console.error('Error cargando gráfico:', e)
     });
   }
 
-  // 3. Función para el botón "Ver Detalles"
-  // ESTA ES LA FUNCIÓN QUE LLAMA EL BOTÓN
+  // Función que pide los datos al Back
+  loadTickets(userId: number) {
+    this.incidenceService.getIncidencesByClient(userId).subscribe({
+      next: (data) => {
+        console.log('✅ Tickets encontrados:', data.length);
+        this.tickets.set(data);
+      },
+      error: (err) => console.error('❌ Error:', err)
+    });
+  }
+
+  // Abrir Modal de Crear Ticket
+  openCreateTicket() {
+    const dialogRef = this.dialog.open(CreateIncidenceModalComponent, {
+      width: '600px'
+    });
+
+    //cuando se cierra, recarga tickets
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === true) {
+        const myId = this.authService.currentUserId;
+        if (myId) this.loadTickets(myId);
+      }
+    });
+  }
+
+  // Abrir Modal de Empresa
   openDetails() {
     const company = this.companyData();
+    if (!company) return;
 
-    if (!company) {
-      console.error("No hay datos de empresa para mostrar");
-      return;
-    }
-
-    // 1. Pedimos los usuarios de la empresa
     this.clientService.getUsersByClientId(company.id).subscribe(users => {
-
-      // 2. Pedimos los sub-clientes (facturación)
       this.clientService.getSubClients(company.id).subscribe(subClients => {
-
-        // 3. Abrimos el modal enviándole toda la información junta
         this.dialog.open(CompanyModalComponent, {
-          width: '900px', // Un poco más ancho para que quepan las tablas
-          data: {
-            company: company,
-            users: users,
-            subClients: subClients
-          }
+          width: '900px',
+          data: { company, users, subClients }
         });
-
       });
     });
   }

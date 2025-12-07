@@ -5,6 +5,7 @@ import com.crm.crmSoporteTecnico.persistence.entities.Incidence;
 import com.crm.crmSoporteTecnico.persistence.entities.ReportLog;
 import com.crm.crmSoporteTecnico.persistence.repositories.ReportLogRepository;
 import com.crm.crmSoporteTecnico.services.INotificationService;
+import com.crm.crmSoporteTecnico.services.models.dtos.CreateIncidenceDTO;
 import com.crm.crmSoporteTecnico.services.models.dtos.ServiceRequest;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.util.ByteArrayDataSource;
@@ -72,6 +73,7 @@ public class NotificationServiceImpl implements INotificationService {
 
     /**
      * Envía las credenciales de forma asíncrona, ejecutando un hilo separado.
+     *
      * @param user
      * @param rawPassword
      */
@@ -114,6 +116,7 @@ public class NotificationServiceImpl implements INotificationService {
 
     /**
      * Notifica al técnico de una nueva incidencia asignada.
+     *
      * @param incidence
      */
     @Override
@@ -153,7 +156,7 @@ public class NotificationServiceImpl implements INotificationService {
 
             mailSender.send(message);
             System.out.println("Correo de asignación enviado a técnico: " + incidence.getTechnician().getEmail());
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             System.out.println("Error al enviar la notificación de asignación: " + ex.getMessage());
         }
 
@@ -186,6 +189,59 @@ public class NotificationServiceImpl implements INotificationService {
             });
         } catch (Exception ex) {
             System.out.println("Error al enviar PDF: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Implementación: Envía correo al Manager sobre nueva incidencia.
+     */
+    @Override
+    @Async
+    public void notifyManagerNewIncidence(Incidence incidence, CreateIncidenceDTO request) {
+
+        System.out.println("Enviando notificación de NUEVA INCIDENCIA al Manager...");
+
+        MimeMessage message = mailSender.createMimeMessage();
+
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "utf-8");
+
+            helper.setFrom(SENDER_EMAIL);
+            helper.setTo(MANAGER_EMAIL);
+            helper.setSubject("NUEVA INCIDENCIA CREADA - ID #" + incidence.getId());
+
+            String htmlContent = String.format(
+                    "<html><body>" +
+                            "<h2>Nueva Incidencia Reportada</h2>" +
+                            "<p>Un cliente ha registrado un ticket en el sistema que requiere atención.</p>" +
+                            "<hr/>" +
+                            "<ul>" +
+                            "<li><b>ID Ticket:</b> #%s</li>" +
+                            "<li><b>Cliente:</b> %s</li>" +
+                            "<li><b>Asunto:</b> %s</li>" +
+                            "<li><b>Prioridad:</b> <span style='color:red;'>%s</span></li>" +
+                            "</ul>" +
+                            "<h3>Descripción:</h3>" +
+                            "<p><i>%s</i></p>" +
+                            "<hr/>" +
+                            "<p>Por favor, accede al CRM para asignar un técnico.</p>" +
+                            "</body></html>",
+                    incidence.getId(),
+                    incidence.getClient().getCompanyName(),
+                    incidence.getTitle(),
+                    incidence.getPriority(),
+                    incidence.getDescription()
+            );
+
+            helper.setText(htmlContent, true);
+
+            mailSender.send(message);
+            System.out.println("Correo de nueva incidencia enviado al Manager.");
+
+        } catch (Exception ex) {
+            // ESTO EVITA QUE EL ERROR 500 ROMPA LA CREACIÓN DEL TICKET
+            System.err.println("ERROR enviando correo (Pero el ticket se creó): " + ex.getMessage());
+            ex.printStackTrace();
         }
     }
 
