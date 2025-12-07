@@ -1,1 +1,56 @@
-<p>tech-dashboard works!</p>
+<h2>Mis incidencias</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Título</th>
+      <th>Estado</th>
+      <th>Actualizar Estado</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    @for (inc of incidences; track inc.id) {
+      <tr>
+        <td>{{ inc.id }}</td>
+        <td>{{ inc.title }}</td>
+        <td>{{ inc.status }}</td>
+        <td>
+          <select [(ngModel)]="inc.status"
+                  (change)="updateStatus(inc.id, inc.status)">
+            <option value="PENDING">Pendiente</option>
+            <option value="IN_PROGRESS">En progreso</option>
+            <option value="RESOLVED">Resuelta</option>
+            <option value="CLOSED">Cerrada</option>
+          </select>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>
+
+<h2>Mis estadísticas</h2>
+
+@if (stats) {
+  <div>
+    <p>Pendientes: {{ stats.pending }}</p>
+    <p>En progreso: {{ stats.inProgress }}</p>
+    <p>Resueltas: {{ stats.resolved }}</p>
+    <p>Cerradas: {{ stats.closed }}</p>
+  </div>
+} @else {
+  <p>Cargando estadísticas...</p>
+}
+<h2>Gráfico de mis incidencias</h2>
+
+@if (chartData.datasets[0].data.length > 0) {
+  <div style="max-width: 450px;">
+    <canvas
+      baseChart
+      [data]="chartData"
+      [type]="chartType">
+    </canvas>
+  </div>
+}
+

@@ -41,5 +41,6 @@ public interface IUserService {
      * @return
      */
     UserCreationRequest findUserById(Long userId);
+    AppUser findByEmail(String email);
 
 }

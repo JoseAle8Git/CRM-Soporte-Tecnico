@@ -42,6 +42,9 @@ public class Incidence {
     @Column(name = "assignment_date")
     private LocalDateTime assignmentDate;
 
+    @Column(name = "close_date")
+    private LocalDateTime closeDate;
+
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;

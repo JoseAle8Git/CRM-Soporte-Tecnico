@@ -5,3 +5,12 @@ export interface TechIncidenceStats {
     technicianName: string;
     incidenceCount: number;
 }
+/**
+ * Interfaz para las estadísticas personales del técnico (TechnicianPersonalStatsDTO.java).
+ */
+export interface TechnicianPersonalStats {
+    pending: number;
+    inProgress: number;
+    resolved: number;
+    closed: number;
+}

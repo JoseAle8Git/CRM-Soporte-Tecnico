@@ -37,5 +37,5 @@ public interface UserRepository extends JpaRepository<AppUser,Long> {
      * Busca todos los usuarios que pertenecen a una empresa específica.
      */
     List<AppUser> findByClientId(Long clientId);
-
+    
 }
