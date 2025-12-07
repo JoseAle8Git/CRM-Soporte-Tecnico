@@ -2,6 +2,7 @@ package com.crm.crmSoporteTecnico.controllers;
 
 import com.crm.crmSoporteTecnico.persistence.entities.AppUser;
 import com.crm.crmSoporteTecnico.services.IUserService;
+import com.crm.crmSoporteTecnico.services.models.dtos.ClientDashboardDTO;
 import com.crm.crmSoporteTecnico.services.models.dtos.UserBasicDTO;
 import com.crm.crmSoporteTecnico.services.models.dtos.UserCreationRequest;
 import jakarta.validation.Valid;
@@ -89,6 +90,16 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable Long id){
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @GetMapping("/clients-list")
+    public ResponseEntity<List<ClientDashboardDTO>> getAllClients(
+            @RequestParam(required = false) Boolean activeFilter,
+            @RequestParam(required = false) String packageFilter
+    ){
+        List<ClientDashboardDTO> clients = userService.getAllClients(activeFilter, packageFilter);
+        return ResponseEntity.ok(clients);
     }
 
 }

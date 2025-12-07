@@ -113,8 +113,6 @@ export class ManagerDashboard implements OnInit {
         }
       }
     });
-
-
   }
 
   assignIncident(incidenceId: number): void {

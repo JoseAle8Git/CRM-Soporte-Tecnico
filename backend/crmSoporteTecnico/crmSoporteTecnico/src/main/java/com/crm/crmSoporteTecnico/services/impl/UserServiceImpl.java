@@ -9,6 +9,7 @@ import com.crm.crmSoporteTecnico.persistence.repositories.RolRepository;
 import com.crm.crmSoporteTecnico.persistence.repositories.UserRepository;
 import com.crm.crmSoporteTecnico.services.INotificationService;
 import com.crm.crmSoporteTecnico.services.IUserService;
+import com.crm.crmSoporteTecnico.services.models.dtos.ClientDashboardDTO;
 import com.crm.crmSoporteTecnico.services.models.dtos.UserBasicDTO;
 import com.crm.crmSoporteTecnico.services.models.dtos.UserCreationRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -166,6 +167,24 @@ public class UserServiceImpl implements IUserService {
                 null,
                 null
         );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ClientDashboardDTO> getAllClients(Boolean activeFilter, String packageFilter) {
+        List<Client> clients;
+
+        if(activeFilter != null) {
+            clients = clientRepository.findByActive(activeFilter);
+        } else if(packageFilter != null && !packageFilter.isBlank()) {
+            clients = clientRepository.findByServicePackage(packageFilter);
+        } else {
+            clients = clientRepository.findAllByOrderByActiveDesc();
+        }
+
+        return clients.stream()
+                .map(ClientDashboardDTO::fromClient)
+                .collect(Collectors.toList());
     }
 
 }

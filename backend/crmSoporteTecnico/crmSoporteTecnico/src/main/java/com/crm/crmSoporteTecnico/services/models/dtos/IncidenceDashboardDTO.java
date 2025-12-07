@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
  * DTO para la lista de incidencias en el Dashboard del Manager.
  * @param id
  * @param title
- * @param Status
+ * @param status
  * @param priority
  * @param clientName
  * @param technicianName

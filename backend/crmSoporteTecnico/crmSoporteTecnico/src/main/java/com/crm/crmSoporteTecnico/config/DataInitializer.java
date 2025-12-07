@@ -71,7 +71,7 @@ public class DataInitializer implements CommandLineRunner {
                 encodedPassword,
                 "Super Admin",
                 "555-1234",
-                "admin@crm.com",
+                "crmdmndmn@gmail.com",
                 adminRole,
                 null
         );

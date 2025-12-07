@@ -4,6 +4,8 @@ import com.crm.crmSoporteTecnico.persistence.entities.AppUser;
 import com.crm.crmSoporteTecnico.persistence.entities.Incidence;
 import com.crm.crmSoporteTecnico.services.models.dtos.ServiceRequest;
 
+import java.io.ByteArrayOutputStream;
+
 public interface INotificationService {
 
     /**
@@ -25,4 +27,11 @@ public interface INotificationService {
      */
     void notifyTechnicianAssignment(Incidence incidence);
 
+    /**
+     * Envío asíncrono del PDF con actualización del log.
+     * @param toEmail
+     * @param pdfStream
+     * @param reportLogId
+     */
+    void sendPdfEmail(String toEmail, ByteArrayOutputStream pdfStream, Long reportLogId);
 }

@@ -1,8 +1,9 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { UserCreationRequest } from '../models/user-creation.interface';
 import { Observable } from 'rxjs';
 import { UserBasic } from '../models/user-basic.interface';
+import { ClientInfo } from '../models/client-dashboard.interface';
 
 // URL base para el controlador de usuarios.
 const USER_API_URL = 'http://localhost:8080/sistema/api/v1/users';
@@ -54,6 +55,18 @@ export class UserService {
 
   deleteUser(userId: number): Observable<void> {
     return this.http.delete<void>(`${USER_API_URL}/${userId}`, { withCredentials: true });
+  }
+
+  getAllClients(activeFilter?: boolean, packageFilter?: string): Observable<ClientInfo[]> {
+    let params = new HttpParams();
+    if(activeFilter !== undefined) {
+      params = params.set('activeFilter', activeFilter.toString());
+    }
+    if(packageFilter) {
+      params = params.set('packageFilter', packageFilter);
+    }
+
+    return this.http.get<ClientInfo[]>(`${USER_API_URL}/clients-list`, { withCredentials: true });
   }
 
 }

@@ -1,6 +1,7 @@
 package com.crm.crmSoporteTecnico.controllers;
 
 import com.crm.crmSoporteTecnico.services.IStatsService;
+import com.crm.crmSoporteTecnico.services.models.dtos.PackageCountDTO;
 import com.crm.crmSoporteTecnico.services.models.dtos.TechnicianStatsDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,4 +28,17 @@ public class StatsController {
         return ResponseEntity.ok(stats);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @GetMapping("/revenue")
+    public ResponseEntity<Double> getProjectedRevenue() {
+        Double revenue = statsService.getProjectMonthlyRevenue();
+        return ResponseEntity.ok(revenue);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @GetMapping("/package-counts")
+    public ResponseEntity<List<PackageCountDTO>> getActiveClientCountsByPackage() {
+        List<PackageCountDTO> counts = statsService.getActiveClientCountsByPackage();
+        return ResponseEntity.ok(counts);
+    }
 }
