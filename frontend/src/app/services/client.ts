@@ -2,9 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
-// --- INTERFACES modales ---
 
-// 1. la Empresa (Tabla 'client')
+// 1. la Empresa client 
 export interface ClientData {
   id: number;
   companyName: string;
@@ -14,7 +13,7 @@ export interface ClientData {
   servicePackage: string;
 }
 
-// 2. los Compañeros (Tabla 'app_user')
+// 2. los registrados para log
 export interface CompanyUser {
   username: string;
   name: string;
@@ -22,7 +21,7 @@ export interface CompanyUser {
   role: string;
 }
 
-// 3. los Sub-Clientes (Tabla 'clients_of_clients')
+// 3. clients of clients
 export interface SubClient {
   id: number;
   name: string;
@@ -44,14 +43,14 @@ export class ClientService {
     return this.http.get<ClientData>(`${this.apiUrl}/${id}`, { withCredentials: true });
   }
 
-  // B. Obtener compañeros
+  // B. Obtener usuario de la empresa
   getUsersByClientId(clientId: number): Observable<CompanyUser[]> {
     return this.http.get<CompanyUser[]>(`${this.apiUrl}/${clientId}/users`, { withCredentials: true });
   }
 
-  // C. Obtener sub-clientes (facturación)
+  // C. Obtener clientsofclients
   getSubClients(clientId: number): Observable<SubClient[]> {
-    // Asegúrate de tener este endpoint en Java (lo hicimos antes: /{id}/sub-clients)
+    //este endpoint en Java  
     return this.http.get<SubClient[]>(`${this.apiUrl}/${clientId}/sub-clients`, { withCredentials: true });
   }
 }

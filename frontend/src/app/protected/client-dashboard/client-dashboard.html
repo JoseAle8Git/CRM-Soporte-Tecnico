@@ -47,12 +47,17 @@
         <mat-card-title>Métricas</mat-card-title>
       </mat-card-header>
 
-      <mat-card-content class="centered-content">
+      <mat-card-content class="centered-content" style="height: 300px; display: block;">
+
         @if (chartData()) {
-        <p>Gráfico...</p>
+        <canvas baseChart [data]="chartData()!" [options]="barChartOptions" [type]="barChartType">
+        </canvas>
         } @else {
-        <p class="no-data">No hay datos registrados</p>
+        <div class="no-data-container">
+          <p class="no-data">Cargando gráfico...</p>
+        </div>
         }
+
       </mat-card-content>
     </mat-card>
 
