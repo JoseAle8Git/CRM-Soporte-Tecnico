@@ -1,6 +1,7 @@
 package com.crm.crmSoporteTecnico.services;
 
 import com.crm.crmSoporteTecnico.persistence.entities.AppUser;
+import com.crm.crmSoporteTecnico.services.models.dtos.ClientDashboardDTO;
 import com.crm.crmSoporteTecnico.services.models.dtos.UserBasicDTO;
 import com.crm.crmSoporteTecnico.services.models.dtos.UserCreationRequest;
 
@@ -42,5 +43,13 @@ public interface IUserService {
      */
     UserCreationRequest findUserById(Long userId);
     AppUser findByEmail(String email);
+
+    /**
+     * Obtiene una lisat de clientes para la tabla del admin.
+     * @param activeFilter
+     * @param packageFilter
+     * @return
+     */
+    List<ClientDashboardDTO> getAllClients(Boolean activeFilter, String packageFilter);
 
 }

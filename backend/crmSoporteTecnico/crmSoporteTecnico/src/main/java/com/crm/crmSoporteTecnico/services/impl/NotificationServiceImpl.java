@@ -2,15 +2,23 @@ package com.crm.crmSoporteTecnico.services.impl;
 
 import com.crm.crmSoporteTecnico.persistence.entities.AppUser;
 import com.crm.crmSoporteTecnico.persistence.entities.Incidence;
+import com.crm.crmSoporteTecnico.persistence.entities.ReportLog;
+import com.crm.crmSoporteTecnico.persistence.repositories.ReportLogRepository;
 import com.crm.crmSoporteTecnico.services.INotificationService;
 import com.crm.crmSoporteTecnico.services.models.dtos.CreateIncidenceDTO;
 import com.crm.crmSoporteTecnico.services.models.dtos.ServiceRequest;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.util.ByteArrayDataSource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.ByteArrayOutputStream;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class NotificationServiceImpl implements INotificationService {
@@ -21,8 +29,11 @@ public class NotificationServiceImpl implements INotificationService {
 
     private static final String SENDER_EMAIL = "crmserviciotecnico52@gmail.com";
 
-    public NotificationServiceImpl(JavaMailSender mailSender) {
+    private final ReportLogRepository reportLogRepository;
+
+    public NotificationServiceImpl(JavaMailSender mailSender, ReportLogRepository reportLogRepository) {
         this.mailSender = mailSender;
+        this.reportLogRepository = reportLogRepository;
     }
 
     @Override
@@ -149,6 +160,36 @@ public class NotificationServiceImpl implements INotificationService {
             System.out.println("Error al enviar la notificación de asignación: " + ex.getMessage());
         }
 
+    }
+
+    @Override
+    @Async
+    @Transactional
+    public void sendPdfEmail(String toEmail, ByteArrayOutputStream pdfStream, Long reportLogId) {
+        System.out.println("Iniciando envío de PDF a: " + toEmail);
+
+        Optional<ReportLog> logOptional = reportLogRepository.findById(reportLogId);
+
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "utf-8");
+
+            helper.setTo(toEmail);
+            helper.setSubject("Reporte Diario del CRM: Estado del " + LocalDateTime.now().toLocalDate());
+            helper.setText("Adjunto encontrarás el reporte de estado y facturación proyectada del CRM.", false);
+            helper.setFrom(SENDER_EMAIL);
+
+            helper.addAttachment("CRM_REPORTE_DIARIO.pdf", new ByteArrayDataSource(pdfStream.toByteArray(), "application/pdf"));
+            mailSender.send(message);
+
+            logOptional.ifPresent(log -> {
+                log.setEmailSent(true);
+                reportLogRepository.save(log);
+                System.out.println("Envío de reporte exitoso y ReportLog actualizado: " + log.getId());
+            });
+        } catch (Exception ex) {
+            System.out.println("Error al enviar PDF: " + ex.getMessage());
+        }
     }
 
     /**

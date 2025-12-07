@@ -22,5 +22,4 @@ public interface IAuthService {
      */
     String generateToken(String username);
 
-
 }

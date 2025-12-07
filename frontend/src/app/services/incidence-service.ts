@@ -3,7 +3,6 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AssignmentRequest, IncidenceDashboard } from '../models/incidence-dashboard.interface';
 
-
 // Para definir qué datos enviamos 
 export interface CreateIncidenceDTO {
   title: string;
@@ -42,7 +41,7 @@ export class IncidenceService {
 
 
   /**
-   * Crea una nueva incidencia (Cliente).
+   * Crea una nueva incidencia.
    */
   createIncidence(incidence: CreateIncidenceDTO): Observable<any> {
     // Usamos la URL base + "/create"
@@ -50,7 +49,7 @@ export class IncidenceService {
   }
 
   /**
-   * Obtiene las incidencias de un cliente específico (Juanito).
+   * Obtiene las incidencias de un cliente específico
    */
   getIncidencesByClient(clientId: number): Observable<any[]> {
     return this.http.get<any[]>(`${INCIDENCE_API_URL}/client/${clientId}`, { withCredentials: true });
