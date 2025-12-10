@@ -148,4 +148,8 @@ export class ClientDashboard implements OnInit {
       });
     });
   }
+
+  logout() {
+    this.authService.logout();
+  }
 }
