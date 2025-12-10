@@ -7,6 +7,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
+
 // imports servicios 
 import { IncidenceService, CreateIncidenceDTO } from '../../../../services/incidence-service';
 import { Auth } from '../../../../auth/auth';
@@ -67,7 +68,6 @@ export class CreateIncidenceModalComponent {
         this.dialogRef.close(true); // Cerramos el modal y avisamos que se creo
       },
       error: (err) => {
-        console.error('Error al crear la incidencia:', err);
         alert('Error al crear la incidencia. Revisa la consola.');
       }
     });

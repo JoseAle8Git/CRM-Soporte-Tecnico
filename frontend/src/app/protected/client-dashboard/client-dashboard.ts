@@ -52,13 +52,10 @@ export class ClientDashboard implements OnInit {
   tickets = signal<any[]>([]);
 
   ngOnInit() {
-    console.log('🔄 Iniciando Dashboard...');
 
     // 1. PEDIR DATOS AL ENDPOINT DEL CLIENT SERVICE
     this.clientService.getMyProfile().subscribe({
       next: (user) => {
-        console.log('✅ Perfil cargado:', user);
-
         this.userName.set(user.username);
         const myCompanyId = user.clientId;
         const myUserId = user.userId;
@@ -74,20 +71,15 @@ export class ClientDashboard implements OnInit {
           this.loadTickets(myCompanyId);
         }
       },
-      error: (err) => console.error('❌ Error cargando perfil:', err)
     });
   }
 
   // --- FUNCIÓN PARA CARGAR TICKETS (Por ID de Empresa) ---
   loadTickets(companyId: number) {
-    console.log('📡 Pidiendo tickets para la empresa ID:', companyId);
-
     this.incidenceService.getIncidencesByClient(companyId).subscribe({
       next: (data) => {
-        console.log(`✅ ${data.length} Tickets recibidos.`);
         this.tickets.set(data);
       },
-      error: (err) => console.error('🔥 Error cargando tickets:', err)
     });
   }
 
@@ -112,7 +104,6 @@ export class ClientDashboard implements OnInit {
           this.hasChartData.set(true);
         }
       },
-      error: (e) => console.error('Error cargando gráfico:', e)
     });
   }
 
@@ -127,7 +118,6 @@ export class ClientDashboard implements OnInit {
       if (result === true) {
         const myCompanyId = Number(this.authService.getClientId()); // <--- ¡CORREGIDO AQUÍ!
         if (myCompanyId) {
-          console.log("🔄 Recargando lista de tickets tras creación...");
           this.loadTickets(myCompanyId);
         }
       }
