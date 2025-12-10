@@ -19,7 +19,7 @@ public class StatsServiceImpl implements IStatsService {
     private static final Map<String, Double> PACKAGES_PRICE = Map.of(
             "Plan Esencial", 99.0,
             "Plan Profesional", 299.0,
-            "Plan Corporativo", 500.0
+            "Plan Corporativo", 499.0
     );
 
     private final IncidenceRepository incidenceRepository;

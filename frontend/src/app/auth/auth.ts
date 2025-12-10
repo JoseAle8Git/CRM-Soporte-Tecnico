@@ -57,7 +57,7 @@ export class Auth {
   }
 
   logout(): void {
-    this.http.post(`${API_URL}/logout`, {}, { withCredentials: true }).subscribe({
+    this.http.post(`${API_URL}/logout`, {}, { withCredentials: true, responseType: 'text' as 'json' }).subscribe({
       next: () => {
         this.currentUser = null;
         localStorage.removeItem(this.USER_KEY);
