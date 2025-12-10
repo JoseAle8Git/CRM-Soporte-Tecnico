@@ -18,7 +18,7 @@ public class ClientOfClient {
     private Long id;
 
     // Los campos de datos
-    private String company_name;
+    private String name;
     private Boolean active;
     private BigDecimal billing; // Para el dinero
 

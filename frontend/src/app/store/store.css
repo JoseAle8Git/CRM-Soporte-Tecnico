@@ -1,0 +1,6 @@
+@media (max-width: 641px) {
+    .nav {
+        height: 125px;
+        padding-top: 25px;
+    }
+}

@@ -1,209 +1,330 @@
-<mat-toolbar color="primary" class="dashboard-toolbar">
-  <span class="toolbar-title">ADMIN DASHBOARD</span>
-  <span class="spacer"></span>
-  <button mat-icon-button (click)="onLogout()">
+<!-- ========================= -->
+<!--        TOOLBAR           -->
+<!-- ========================= -->
+<mat-toolbar 
+  color="primary" 
+  class="dashboard-toolbar flex items-center justify-between px-6 py-3 shadow-md bg-slate-800 text-white">
+  
+  <span class="toolbar-title text-xl font-bold tracking-wide">
+    ADMIN DASHBOARD
+  </span>
+
+  <button 
+    mat-icon-button 
+    (click)="onLogout()" 
+    class="hover:bg-white/10 rounded-full transition">
     <mat-icon>logout</mat-icon>
   </button>
 </mat-toolbar>
+
+
+<!-- ========================= -->
+<!--       LOADING LAYER      -->
+<!-- ========================= -->
 @if (isLoading) {
-  <div class="loading-overlay">
+  <div class="loading-overlay fixed inset-0 bg-black/50 flex flex-col justify-center items-center text-white z-50">
     <mat-spinner diameter="50"></mat-spinner>
-    <p>Cargando datos del administrador...</p>
+    <p class="mt-4 text-lg font-semibold">Cargando datos del administrador...</p>
   </div>
 } @else {
-  <div class="dashboard-container">
-    <div class="metrics-row">
-      <mat-card class="metric-card revenue-card">
-        <mat-card-header>
-          <mat-card-title>Ingreso Mensual Proyectado</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-            <h2 class="revenue-value">{{ proyectedRevenue | currency:'EUR':'symbol':'1.2-2' }}</h2> 
-        </mat-card-content>
-      </mat-card>
-    </div>
-    <div class="content-row">
-      <mat-card class="chart-card">
-        <mat-card-header>
-          <mat-card-title>Clientes Activos por Paquete</mat-card-title>
-        </mat-card-header>
-        <mat-card-content class="chart-content">
-          @if (pieChartData.datasets[0].data.length > 0) {
-            <canvas 
-              baseChart 
-              [options]="pieChartOptions" 
-              [data]="pieChartData" 
-              [type]="pieChartType">
-            </canvas>
-          } @else {
-            <p class="empty-chart">No hay datos de paquetes activos para mostrar.</p>
-          }
-        </mat-card-content>
-      </mat-card>
-      <mat-card class="table-card">
-        <mat-card-header class="table-header">
-          <mat-card-title>Gestión de Usuarios</mat-card-title>
-          <button mat-flat-button color="accent" (click)="openCreateUserDialog()">
-            <mat-icon>person_add</mat-icon>
-            Crear Usuario
-          </button>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="table-responsive">
-            <table mat-table [dataSource]="userDataSource" class="full-width-table">
-              @for (column of userDisplayedColumns; track column) {
-                @if (column === 'actions') {
-                  <ng-container matColumnDef="actions">
-                    <th mat-header-cell *matHeaderCellDef>Acciones</th>
-                    <td mat-cell *matCellDef="let element">
-                      <button mat-icon-button color="primary" (click)="openEditUserDialog(element.id)">
-                        <mat-icon>edit</mat-icon>
-                      </button>
-                      <button mat-icon-button color="warn" (click)="confirmDelete(element.id, element.username)">
-                        <mat-icon>delete</mat-icon>
-                      </button>
-                    </td>
-                  </ng-container>
-                } @else {
-                  <ng-container [matColumnDef]="column">
-                    <th mat-header-cell *matHeaderCellDef>{{ column | titlecase }}</th>
-                    <td mat-cell *matCellDef="let element">{{ element[column] }}</td>
-                  </ng-container>
-                }
-              }
-              <tr mat-header-row *matHeaderRowDef="userDisplayedColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: userDisplayedColumns"></tr>
-              @if (userDataSource.length === 0) {
-                <tr class="mat-row empty-row">
-                  <td class="mat-cell" [attr.colspan]="userDisplayedColumns.length">
-                    No se encontraron usuarios.
-                  </td>
-                </tr>
-              }
-            </table>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    </div>
-    <mat-divider></mat-divider>
-    <mat-card class="client-table-card">
+
+
+<!-- ========================= -->
+<!--     MAIN CONTAINER       -->
+<!-- ========================= -->
+<div class="dashboard-container p-6 space-y-8">
+
+  <!-- MÉTRICA PRINCIPAL -->
+  <div class="metrics-row grid grid-cols-1 md:grid-cols-3 gap-6">
+    <mat-card class="metric-card revenue-card p-6 shadow-lg rounded-xl bg-white">
       <mat-card-header>
-        <mat-card-title>Gestión y Listado de Clientes</mat-card-title>
+        <mat-card-title class="text-gray-700 font-semibold">Ingreso Mensual Proyectado</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <div class="filter-controls">
-          <mat-form-field appearance="outline" class="filter-field">
-            <mat-label>Filtrar por Paquete</mat-label>
-            <mat-select [(ngModel)]="packageFilter" (selectionChange)="applyClientFilters()">
-              <mat-option [value]="null">Todos los Paquetes</mat-option>
-              @for (pkg of packageOptions; track pkg) {
-                <mat-option [value]="pkg">{{ pkg }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="filter-field">
-            <mat-label>Filtrar por Estado</mat-label>
-            <mat-select [(ngModel)]="activeFilter" (selectionChange)="applyClientFilters()">
-              <mat-option [value]="null">Todos</mat-option>
-              <mat-option [value]="true">Activo</mat-option>
-              <mat-option [value]="false">Inactivo</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-        <div class="table-responsive">
-          <table mat-table [dataSource]="clientDataSource" class="full-width-table">
-            @for (column of clientDisplayedColumns; track column) {
-              <ng-container [matColumnDef]="column">
-                <!-- ===== HEADER ===== -->
-                <th mat-header-cell *matHeaderCellDef>
-                  @if (column === 'cif') {
-                    CIF
-                  } @else if (column === 'servicePackage') {
-                    Paquete
-                  } @else if (column === 'companyName') {
-                    Nombre
-                  } @else if (column === 'direction') {
-                    Dirección
-                  } @else if (column === 'active') {
-                    Activo
-                  } @else {
+        <h2 class="revenue-value text-3xl font-bold text-emerald-600 mt-3">
+          {{ proyectedRevenue | currency:'EUR':'symbol':'1.2-2' }}
+        </h2>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- GRÁFICO + TABLA USUARIOS -->
+  <div class="content-row grid grid-cols-1 xl:grid-cols-2 gap-6">
+
+    <!-- GRÁFICO -->
+    <mat-card class="chart-card shadow-lg p-6 rounded-xl bg-white">
+      <mat-card-header>
+        <mat-card-title class="text-gray-700 font-semibold">Clientes Activos por Paquete</mat-card-title>
+      </mat-card-header>
+      <mat-card-content class="chart-content flex justify-center items-center">
+        @if (pieChartData.datasets[0].data.length > 0) {
+          <canvas 
+            baseChart 
+            [options]="pieChartOptions" 
+            [data]="pieChartData" 
+            [type]="pieChartType"
+            class="max-h-80">
+          </canvas>
+        } @else {
+          <p class="empty-chart text-gray-500 text-center py-6">
+            No hay datos de paquetes activos para mostrar.
+          </p>
+        }
+      </mat-card-content>
+    </mat-card>
+
+
+    <!-- TABLA DE GESTIÓN DE USUARIOS -->
+    <mat-card class="table-card shadow-lg rounded-xl bg-white p-6 overflow-visible">
+      <mat-card-header class="table-header flex justify-between items-center mb-6">
+        <mat-card-title class="text-gray-700 font-semibold text-lg">
+          Gestión de Usuarios
+        </mat-card-title>
+
+        <button 
+          mat-flat-button 
+          color="accent" 
+          class="bg-emerald-700 text-white px-4 py-2 rounded-lg shadow hover:bg-emerald-800 transition flex items-center gap-2"
+          (click)="openCreateUserDialog()">
+          <mat-icon>person_add</mat-icon>
+          Crear Usuario
+        </button>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="overflow-x-auto border border-gray-300 rounded-lg shadow-inner">
+          <table mat-table [dataSource]="userDataSource" class="w-full divide-y divide-gray-300">
+
+            @for (column of userDisplayedColumns; track column) {
+
+              @if (column === 'actions') {
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef class="bg-gray-100 font-semibold p-3">
+                    Acciones
+                  </th>
+                  <td mat-cell *matCellDef="let element" class="p-3 flex gap-2">
+
+                    <button mat-icon-button color="primary" class="hover:bg-blue-100 rounded-full" 
+                            (click)="openEditUserDialog(element.id)">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+
+                    <button mat-icon-button color="warn" class="hover:bg-red-100 rounded-full" 
+                            (click)="confirmDelete(element.id, element.username)">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+
+                  </td>
+                </ng-container>
+              } @else {
+
+                <ng-container [matColumnDef]="column">
+                  <th mat-header-cell *matHeaderCellDef class="bg-gray-100 font-semibold p-3">
                     {{ column | titlecase }}
-                  }
-                </th>
-                <!-- ===== CELDAS ===== -->
-                <td mat-cell *matCellDef="let element">
-                @if (column === 'active') {
-                  <mat-icon [color]="element.active ? 'primary' : 'warn'">
-                    {{ element.active ? 'check_circle' : 'cancel' }}
-                  </mat-icon>
-                  } @else {
-                    {{ element[column] || '—' }}
-                  }
-                </td>
-              </ng-container>
+                  </th>
+                  <td mat-cell *matCellDef="let element" class="p-3">
+                    {{ element[column] }}
+                  </td>
+                </ng-container>
+
+              }
             }
-            <tr mat-header-row *matHeaderRowDef="clientDisplayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: clientDisplayedColumns"></tr>
-            @if (clientDataSource.length === 0) {
-              <tr class="mat-row empty-row">
-                <td class="mat-cell" [attr.colspan]="clientDisplayedColumns.length">
-                  No se encontraron clientes con los filtros aplicados.
+
+            <tr mat-header-row *matHeaderRowDef="userDisplayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: userDisplayedColumns"
+                class="hover:bg-gray-50 transition"></tr>
+
+            @if (userDataSource.length === 0) {
+              <tr>
+                <td class="p-4 text-center text-gray-500" 
+                    [attr.colspan]="userDisplayedColumns.length">
+                  No se encontraron usuarios.
                 </td>
               </tr>
             }
+
           </table>
         </div>
       </mat-card-content>
     </mat-card>
-    <mat-card class="report-log-card">
-      <mat-card-header>
-          <mat-card-title>Historial de Reportes Periódicos (PDF)</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-          <div class="table-responsive">
-              <table mat-table [dataSource]="reportLogDataSource" class="full-width-table">
 
-                  <ng-container matColumnDef="date">
-                      <th mat-header-cell *matHeaderCellDef>Fecha de Generación</th>
-                      <td mat-cell *matCellDef="let element">{{ element.generationDate | date:'medium' }}</td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="type">
-                      <th mat-header-cell *matHeaderCellDef>Tipo</th>
-                      <td mat-cell *matCellDef="let element">{{ element.reportType }}</td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="emailSent">
-                      <th mat-header-cell *matHeaderCellDef>Email Enviado</th>
-                      <td mat-cell *matCellDef="let element">
-                          <mat-icon [color]="element.emailSent ? 'primary' : 'warn'">
-                              {{ element.emailSent ? 'check_circle' : 'warning' }}
-                          </mat-icon>
-                      </td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="actions">
-                      <th mat-header-cell *matHeaderCellDef>Acciones</th>
-                      <td mat-cell *matCellDef="let element">
-                          <button mat-icon-button color="accent" (click)="openPdf(element.id)">
-                              <mat-icon>picture_as_pdf</mat-icon>
-                          </button>
-                      </td>
-                  </ng-container>
-
-                  <tr mat-header-row *matHeaderRowDef="reportLogDisplayedColumns"></tr>
-                  <tr mat-row *matRowDef="let row; columns: reportLogDisplayedColumns"></tr>
-
-                  @if (reportLogDataSource.length === 0) {
-                      <tr class="mat-row empty-row">
-                          <td class="mat-cell" [attr.colspan]="reportLogDisplayedColumns.length">
-                              No se han generado reportes aún.
-                          </td>
-                      </tr>
-                  }
-              </table>
-          </div>
-      </mat-card-content>
-    </mat-card>
   </div>
+
+
+  <mat-divider></mat-divider>
+
+
+  <!-- TABLA DE CLIENTES -->
+  <mat-card class="client-table-card shadow-lg rounded-xl bg-white p-6">
+    <mat-card-header>
+      <mat-card-title class="text-gray-700 font-semibold text-lg">
+        Gestión y Listado de Clientes
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content class="space-y-6">
+
+      <!-- FILTROS -->
+      <div class="filter-controls flex flex-col md:flex-row gap-4">
+        <mat-form-field class="filter-field w-full md:w-1/3">
+          <mat-label>Filtrar por Paquete</mat-label>
+          <mat-select [(ngModel)]="packageFilter" (selectionChange)="applyClientFilters()">
+            <mat-option [value]="null">Todos los Paquetes</mat-option>
+            @for (pkg of packageOptions; track pkg) {
+              <mat-option [value]="pkg">{{ pkg }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="filter-field w-full md:w-1/3">
+          <mat-label>Filtrar por Estado</mat-label>
+          <mat-select [(ngModel)]="activeFilter" (selectionChange)="applyClientFilters()">
+            <mat-option [value]="null">Todos</mat-option>
+            <mat-option [value]="true">Activo</mat-option>
+            <mat-option [value]="false">Inactivo</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <!-- TABLA CLIENTES -->
+      <div class="overflow-x-auto border border-gray-300 rounded-lg shadow-inner">
+        <table mat-table [dataSource]="clientDataSource" class="w-full divide-y divide-gray-300">
+
+          @for (column of clientDisplayedColumns; track column) {
+
+            <ng-container [matColumnDef]="column">
+
+              <th mat-header-cell *matHeaderCellDef class="bg-gray-100 font-semibold p-3">
+                @if (column === 'cif') {
+                  CIF
+                } @else if (column === 'servicePackage') {
+                  Paquete
+                } @else if (column === 'companyName') {
+                  Nombre
+                } @else if (column === 'direction') {
+                  Dirección
+                } @else if (column === 'active') {
+                  Activo
+                } @else {
+                  {{ column | titlecase }}
+                }
+              </th>
+
+              <td mat-cell *matCellDef="let element" class="p-3">
+                @if (column === 'active') {
+                  <mat-icon [color]="element.active ? 'primary' : 'warn'">
+                    {{ element.active ? 'check_circle' : 'cancel' }}
+                  </mat-icon>
+                } @else {
+                  {{ element[column] || '—' }}
+                }
+              </td>
+
+            </ng-container>
+
+          }
+
+          <tr mat-header-row *matHeaderRowDef="clientDisplayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: clientDisplayedColumns"
+              class="hover:bg-gray-50 transition"></tr>
+
+          @if (clientDataSource.length === 0) {
+            <tr>
+              <td class="p-4 text-center text-gray-500" 
+                  [attr.colspan]="clientDisplayedColumns.length">
+                No se encontraron clientes con los filtros aplicados.
+              </td>
+            </tr>
+          }
+
+        </table>
+      </div>
+
+    </mat-card-content>
+  </mat-card>
+
+
+  <!-- ========================= -->
+  <!--  HISTORIAL DE REPORTES   -->
+  <!-- ========================= -->
+  <mat-card class="report-log-card shadow-lg rounded-xl bg-white p-6">
+    <mat-card-header>
+      <mat-card-title class="text-gray-700 font-semibold text-lg">
+        Historial de Reportes Periódicos (PDF)
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="overflow-x-auto border border-gray-300 rounded-lg shadow-inner">
+        
+        <table mat-table [dataSource]="reportLogDataSource" class="w-full divide-y divide-gray-300">
+
+          <!-- Fecha -->
+          <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef class="bg-gray-100 p-3 font-semibold">
+              Fecha de Generación
+            </th>
+            <td mat-cell *matCellDef="let element" class="p-3">
+              {{ element.generationDate | date:'medium' }}
+            </td>
+          </ng-container>
+
+          <!-- Tipo -->
+          <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef class="bg-gray-100 p-3 font-semibold">
+              Tipo
+            </th>
+            <td mat-cell *matCellDef="let element" class="p-3">
+              {{ element.reportType }}
+            </td>
+          </ng-container>
+
+          <!-- Email enviado -->
+          <ng-container matColumnDef="emailSent">
+            <th mat-header-cell *matHeaderCellDef class="bg-gray-100 p-3 font-semibold">
+              Email Enviado
+            </th>
+            <td mat-cell *matCellDef="let element" class="p-3">
+              <mat-icon [color]="element.emailSent ? 'primary' : 'warn'">
+                {{ element.emailSent ? 'check_circle' : 'warning' }}
+              </mat-icon>
+            </td>
+          </ng-container>
+
+          <!-- Acciones -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="bg-gray-100 p-3 font-semibold">Acciones</th>
+            <td mat-cell *matCellDef="let element" class="p-3">
+              <button 
+                mat-icon-button 
+                color="accent" 
+                class="hover:bg-pink-100 rounded-full"
+                (click)="openPdf(element.id)">
+                <mat-icon>picture_as_pdf</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <!-- Filas -->
+          <tr mat-header-row *matHeaderRowDef="reportLogDisplayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: reportLogDisplayedColumns"
+              class="hover:bg-gray-50 transition"></tr>
+
+          @if (reportLogDataSource.length === 0) {
+            <tr>
+              <td class="p-4 text-center text-gray-500"
+                  [attr.colspan]="reportLogDisplayedColumns.length">
+                No se han generado reportes aún.
+              </td>
+            </tr>
+          }
+
+        </table>
+
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+</div>
+
 }
