@@ -6,8 +6,11 @@ import com.crm.crmSoporteTecnico.persistence.entities.ClientOfClient;
 import com.crm.crmSoporteTecnico.persistence.repositories.ClientOfClientRepository;
 import com.crm.crmSoporteTecnico.persistence.repositories.ClientRepository;
 import com.crm.crmSoporteTecnico.persistence.repositories.UserRepository;
+import com.crm.crmSoporteTecnico.services.models.dtos.UserContextDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 // Importa el DTO
@@ -60,5 +63,22 @@ public class ClientController {
         // Necesitas tener 'findByClientId' en ClientOfClientRepository
         List<ClientOfClient> misClientes = subClientRepo.findByClientId(id);
         return ResponseEntity.ok(misClientes);
+    }
+
+    // 4. BUSCAR USUARIO LOGUEADO
+    // URL Final: /sistema/api/v1/clients/profile
+    @GetMapping("/profile")
+    public ResponseEntity<UserContextDTO> getMyProfile() {
+
+        // A. Quién está logueado?
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+
+        // B. Buscamos sus datos
+        AppUser user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // C. Devolvemos el DTO completo
+        return ResponseEntity.ok(UserContextDTO.fromEntity(user));
     }
 }

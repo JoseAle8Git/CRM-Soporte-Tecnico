@@ -165,6 +165,7 @@ public class UserServiceImpl implements IUserService {
                 user.getRol().getName(),
                 null,
                 null,
+                null,
                 null
         );
     }
