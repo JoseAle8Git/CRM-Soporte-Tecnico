@@ -14,6 +14,7 @@ export interface AuthResponse {
   userId: number;
   username: string;
   role: string;
+  clientId: number;
 }
 
 @Injectable({
@@ -83,12 +84,17 @@ export class Auth {
   get currentUserId(): number | null {
 
     if (!this.currentUser) {
-      const stored = localStorage.getItem('currentUser'); 
+      const stored = localStorage.getItem('currentUser');
       if (stored) {
         this.currentUser = JSON.parse(stored);
       }
     }
     return this.currentUser ? this.currentUser.userId : null;
   }
-
+  getClientId(): number | null {
+    if (!this.currentUser) {
+      this.loadUserFromStorage();
+    }
+    return this.currentUser ? this.currentUser.clientId : null;
+  }
 }

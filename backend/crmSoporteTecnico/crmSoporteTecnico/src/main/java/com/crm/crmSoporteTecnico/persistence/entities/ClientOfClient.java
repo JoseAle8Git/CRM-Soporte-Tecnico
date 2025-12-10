@@ -1,5 +1,6 @@
 package com.crm.crmSoporteTecnico.persistence.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,12 +19,14 @@ public class ClientOfClient {
     private Long id;
 
     // Los campos de datos
+    @Column(name = "company_name")
     private String name;
     private Boolean active;
     private BigDecimal billing; // Para el dinero
 
     // LA RELACIÓN (Foreign Key)
     // Esto conecta con la empresa padre
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = false) // Debe coincidir con la columna del SQL
     private Client client;

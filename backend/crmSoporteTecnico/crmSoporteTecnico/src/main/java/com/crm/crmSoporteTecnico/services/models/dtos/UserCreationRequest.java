@@ -33,6 +33,8 @@ public record UserCreationRequest(
         @NotBlank(message = "El rol es obligatorio.")
         String roleName,
 
+        Long clientId,
+
         String companyName,
 
         String cif,
