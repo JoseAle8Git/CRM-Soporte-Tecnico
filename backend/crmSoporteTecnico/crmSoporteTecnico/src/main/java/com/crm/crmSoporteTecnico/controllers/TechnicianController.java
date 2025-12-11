@@ -16,6 +16,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+@CrossOrigin(
+        origins = "http://localhost:4200",
+        allowCredentials = "true"
+)
 @RestController
 @RequestMapping("/api/technician")
 public class TechnicianController {
@@ -27,7 +31,7 @@ public class TechnicianController {
         this.userRepository = userRepository;
     }
 
-    @PreAuthorize("hasAuthority('TECHNICIAN')")
+    @PreAuthorize("hasAuthority('TECH')")
     @GetMapping("/incidences")
     public ResponseEntity<List<TechnicianIncidenceDTO>> getMyIncidences(Authentication authentication) {
 
@@ -49,7 +53,7 @@ public class TechnicianController {
         return ResponseEntity.ok(result);
     }
 
-    @PreAuthorize("hasAuthority('TECHNICIAN')")
+    @PreAuthorize("hasAuthority('TECH')")
     @PatchMapping("/incidences/{incidenceId}/status")
     public ResponseEntity<TechnicianIncidenceDTO> updateStatus(
             @PathVariable Long incidenceId,
@@ -76,7 +80,7 @@ public class TechnicianController {
     }
 
 
-    @PreAuthorize("hasAuthority('TECHNICIAN')")
+    @PreAuthorize("hasAuthority('TECH')")
     @GetMapping("/stats")
     public ResponseEntity<TechnicianPersonalStatsDTO> getTechnicianStats(Authentication authentication) {
 

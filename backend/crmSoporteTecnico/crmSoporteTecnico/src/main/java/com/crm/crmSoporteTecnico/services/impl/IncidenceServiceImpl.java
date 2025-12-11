@@ -66,7 +66,6 @@ public class IncidenceServiceImpl implements IIncidenceService {
         // Actualizar la incidencia.
         incidence.setTechnician(technician);
         incidence.setStatus(IncidenceStatus.IN_PROGRESS);
-        incidence.setAssignmentDate(LocalDateTime.now());
 
         Incidence updatedIncidence = incidenceRepository.save(incidence);
 
@@ -97,7 +96,6 @@ public class IncidenceServiceImpl implements IIncidenceService {
                 priority,
                 IncidenceStatus.PENDING,
                 LocalDateTime.now(),
-                null,
                 null,
                 client,
                 null,
@@ -150,12 +148,13 @@ public class IncidenceServiceImpl implements IIncidenceService {
 
         List<Incidence> incidences = incidenceRepository.findByTechnicianId(technicianId);
 
+        long open = incidences.stream().filter(i -> i.getStatus() == IncidenceStatus.OPEN).count();
         long pending = incidences.stream().filter(i -> i.getStatus() == IncidenceStatus.PENDING).count();
         long inProgress = incidences.stream().filter(i -> i.getStatus() == IncidenceStatus.IN_PROGRESS).count();
         long resolved = incidences.stream().filter(i -> i.getStatus() == IncidenceStatus.RESOLVED).count();
         long closed = incidences.stream().filter(i -> i.getStatus() == IncidenceStatus.CLOSED).count();
 
-        return new TechnicianPersonalStatsDTO(pending, inProgress, resolved, closed);
+        return new TechnicianPersonalStatsDTO(open, pending, inProgress, resolved, closed);
 
     }
 

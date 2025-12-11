@@ -19,6 +19,7 @@
         <td>
           <select [(ngModel)]="inc.status"
                   (change)="updateStatus(inc.id, inc.status)">
+            <option value="OPEN">Abierta</option>
             <option value="PENDING">Pendiente</option>
             <option value="IN_PROGRESS">En progreso</option>
             <option value="RESOLVED">Resuelta</option>
@@ -34,6 +35,7 @@
 
 @if (stats) {
   <div>
+    <p>Abiertas: {{ stats.open }}</p>
     <p>Pendientes: {{ stats.pending }}</p>
     <p>En progreso: {{ stats.inProgress }}</p>
     <p>Resueltas: {{ stats.resolved }}</p>

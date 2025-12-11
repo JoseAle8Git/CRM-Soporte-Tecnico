@@ -5,6 +5,7 @@ import { TechnicianService } from '../../services/technician-service';
 import { TechnicianIncidence } from '../../models/technician-incidence.interface';
 import { TechnicianPersonalStats } from '../../models/tech-stats.interface';
 import { BaseChartDirective } from 'ng2-charts';
+import { ChartType } from 'chart.js';
 
 @Component({
   selector: 'app-tech-dashboard',
@@ -13,17 +14,17 @@ import { BaseChartDirective } from 'ng2-charts';
   templateUrl: './tech-dashboard.html',
   styleUrls: ['./tech-dashboard.css']
 })
-export class TechDashboardComponent implements OnInit {
+export class TechDashboard implements OnInit {
 
   private techService = inject(TechnicianService);
 
   incidences: TechnicianIncidence[] = [];
   stats?: TechnicianPersonalStats;
 
-  chartType = 'bar';
+  chartType: ChartType = 'bar';
 
   chartData: any = {
-    labels: ['Pendientes', 'En progreso', 'Resueltas', 'Cerradas'],
+    labels: ['Abiertas', 'Pendientes', 'En progreso', 'Resueltas', 'Cerradas'],
     datasets: [
       {
         data: [] as number[],   // TIPO EXPLÍCITO
@@ -51,6 +52,7 @@ export class TechDashboardComponent implements OnInit {
 
     // Rellenar gráfico
     this.chartData.datasets[0].data = [
+      data.open,
       data.pending,
       data.inProgress,
       data.resolved,

@@ -42,7 +42,6 @@ public interface IUserService {
      * @return
      */
     UserCreationRequest findUserById(Long userId);
-    AppUser findByEmail(String email);
 
     /**
      * Obtiene una lisat de clientes para la tabla del admin.

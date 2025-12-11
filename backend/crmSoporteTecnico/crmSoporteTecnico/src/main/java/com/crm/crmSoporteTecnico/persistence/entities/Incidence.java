@@ -39,9 +39,6 @@ public class Incidence {
     @Column(name = "creation_date", nullable = false)
     private LocalDateTime creationDate = LocalDateTime.now();
 
-    @Column(name = "assignment_date")
-    private LocalDateTime assignmentDate;
-
     @Column(name = "close_date")
     private LocalDateTime closeDate;
 
