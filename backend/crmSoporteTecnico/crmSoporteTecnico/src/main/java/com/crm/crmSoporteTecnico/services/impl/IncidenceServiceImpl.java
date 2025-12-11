@@ -84,8 +84,9 @@ public class IncidenceServiceImpl implements IIncidenceService {
     // AHORA RECIBIMOS EL USUARIO 'creatorUser' (El que está logueado)
     public IncidenceDashboardDTO createIncidence(CreateIncidenceDTO request, AppUser creatorUser) {
 
-        Client client = clientRepository.findById(creatorUser.getId())
-                .orElseThrow(() -> new IllegalArgumentException("¡ERROR CRÍTICO! El usuario ID " + creatorUser.getId() + " no existe en la tabla 'client'."));
+        if (creatorUser.getClient() == null) {
+            throw new IllegalArgumentException("El usuario no tiene empresa asignada.");
+        }
 
         IncidencePriority priority = IncidencePriority.valueOf(request.priority().toUpperCase());
         // 1. Crear la entidad Incidence
@@ -97,7 +98,7 @@ public class IncidenceServiceImpl implements IIncidenceService {
                 IncidenceStatus.PENDING,
                 LocalDateTime.now(),
                 null,
-                client,
+                creatorUser.getClient(),
                 null,
                 null
         );

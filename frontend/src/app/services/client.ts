@@ -13,6 +13,15 @@ export interface ClientData {
   servicePackage: string;
 }
 
+// La información del usuario en contexto
+export interface UserContext {
+  userId: number;
+  username: string;
+  role: string;
+  clientId: number;
+  companyName: string;
+}
+
 // 2. los registrados para log
 export interface CompanyUser {
   username: string;
@@ -53,4 +62,11 @@ export class ClientService {
     //este endpoint en Java  
     return this.http.get<SubClient[]>(`${this.apiUrl}/${clientId}/sub-clients`, { withCredentials: true });
   }
+
+  // Pedir mi perfil usando el ClientController
+  getMyProfile(): Observable<UserContext> {
+    // Llamamos a /clients/profile
+    return this.http.get<UserContext>(`${this.apiUrl}/profile`, { withCredentials: true });
+  }
+
 }

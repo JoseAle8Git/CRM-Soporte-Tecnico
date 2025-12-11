@@ -1,118 +1,228 @@
-<div class="dashboard-container">
-    <mat-toolbar color="primary">
-        <span>Dashboard del Manager</span>
-        <span class="spacer"></span>
-        <button mat-button (click)="onLogout()">
+<div class="dashboard-container p-6 space-y-8 bg-gray-50 min-h-screen">
+
+    <!-- ========================= -->
+    <!--         TOOLBAR           -->
+    <!-- ========================= -->
+    <mat-toolbar 
+        color="primary" 
+        class="flex items-center justify-between px-6 py-3 shadow-md bg-slate-800 text-white rounded-lg">
+
+        <span class="text-xl font-semibold tracking-wide">
+            Dashboard del Manager
+        </span>
+
+        <button mat-button (click)="onLogout()" 
+            class="flex items-center gap-2 hover:bg-white/10 rounded-lg px-3 transition">
             <mat-icon>logout</mat-icon>
             Cerrar Sesión
         </button>
     </mat-toolbar>
 
-    <div class="content-grid">
-        
-        <mat-card class="user-management-card">
-            <mat-card-header>
-                <mat-card-title>Gestión de Usuarios</mat-card-title>
-                <mat-card-subtitle>Añadir y listar personal / clientes.</mat-card-subtitle>
-                <button mat-mini-fab color="accent" (click)="openCreateUserDialog()" style="margin-left: auto;">
+
+    <!-- ========================= -->
+    <!--  TODO EN UNA SOLA COLUMNA -->
+    <!-- ========================= -->
+    <div class="flex flex-col space-y-8">
+
+
+
+        <!-- ========================= -->
+        <!--    GESTIÓN DE USUARIOS    -->
+        <!-- ========================= -->
+        <mat-card class="user-management-card shadow-lg rounded-xl bg-white p-6">
+
+            <mat-card-header class="flex items-center gap-4">
+                <div>
+                    <mat-card-title class="text-gray-700 text-lg font-semibold">
+                        Gestión de Usuarios
+                    </mat-card-title>
+                    <mat-card-subtitle class="text-gray-500">
+                        Añadir y listar personal / clientes.
+                    </mat-card-subtitle>
+                </div>
+
+                <button mat-mini-fab color="accent" 
+                    class="ml-auto bg-emerald-700 hover:bg-emerald-800 transition shadow"
+                    (click)="openCreateUserDialog()">
                     <mat-icon>add</mat-icon>
                 </button>
             </mat-card-header>
+
             <mat-card-content>
+
                 <mat-divider></mat-divider>
-                <h3 style="margin-top: 15px;">Usuarios Registrados</h3>
-        
-                <div class="table-container">
-                    <table mat-table [dataSource]="userDataSource" class="full-width-table">
+
+                <h3 class="text-gray-600 font-medium mt-5 mb-3">Usuarios Registrados</h3>
+
+                <div class="overflow-x-auto border border-gray-300 rounded-lg shadow-inner">
+                    <table mat-table [dataSource]="userDataSource" 
+                           class="w-full divide-y divide-gray-300">
 
                         <ng-container matColumnDef="username">
-                            <th mat-header-cell *matHeaderCellDef> Usuario </th>
-                            <td mat-cell *matCellDef="let element"> {{element.username}} </td>
+                            <th mat-header-cell *matHeaderCellDef class="bg-gray-100 p-3 font-semibold">
+                                Usuario
+                            </th>
+                            <td mat-cell *matCellDef="let element" class="p-3">
+                                {{ element.username }}
+                            </td>
                         </ng-container>
 
                         <ng-container matColumnDef="name">
-                            <th mat-header-cell *matHeaderCellDef> Nombre Completo </th>
-                            <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+                            <th mat-header-cell *matHeaderCellDef class="bg-gray-100 p-3 font-semibold">
+                                Nombre Completo
+                            </th>
+                            <td mat-cell *matCellDef="let element" class="p-3">
+                                {{ element.name }}
+                            </td>
                         </ng-container>
-                
+
                         <ng-container matColumnDef="email">
-                            <th mat-header-cell *matHeaderCellDef> Email </th>
-                            <td mat-cell *matCellDef="let element"> {{element.email}} </td>
+                            <th mat-header-cell *matHeaderCellDef class="bg-gray-100 p-3 font-semibold">
+                                Email
+                            </th>
+                            <td mat-cell *matCellDef="let element" class="p-3">
+                                {{ element.email }}
+                            </td>
                         </ng-container>
-                
+
                         <ng-container matColumnDef="role">
-                            <th mat-header-cell *matHeaderCellDef> Rol </th>
-                            <td mat-cell *matCellDef="let element"> {{element.role | roleDisplay}} </td>
+                            <th mat-header-cell *matHeaderCellDef class="bg-gray-100 p-3 font-semibold">
+                                Rol
+                            </th>
+                            <td mat-cell *matCellDef="let element" class="p-3">
+                                {{ element.role | roleDisplay }}
+                            </td>
                         </ng-container>
 
                         <ng-container matColumnDef="actions">
-                            <th mat-header-cell *matHeaderCellDef> Acciones </th>
-                            <td mat-cell *matCellDef="let element"> 
-                                <button mat-icon-button color="accent" (click)="openEditUserDialog(element.id)">
+                            <th mat-header-cell *matHeaderCellDef class="bg-gray-100 p-3 font-semibold">
+                                Acciones
+                            </th>
+                            <td mat-cell *matCellDef="let element" class="p-3 flex gap-2">
+                                <button mat-icon-button color="accent" 
+                                        class="hover:bg-blue-100 rounded-full"
+                                        (click)="openEditUserDialog(element.id)">
                                     <mat-icon>edit</mat-icon>
                                 </button>
-                                <button mat-icon-button color="warn" (click)="confirmDelete(element.id, element.name)">
+
+                                <button mat-icon-button color="warn"
+                                        class="hover:bg-red-100 rounded-full"
+                                        (click)="confirmDelete(element.id, element.name)">
                                     <mat-icon>delete</mat-icon>
                                 </button>
                             </td>
                         </ng-container>
 
                         <tr mat-header-row *matHeaderRowDef="userDisplayedColumns"></tr>
-                        <tr mat-row *matRowDef="let row; columns: userDisplayedColumns;"></tr>
-                
+                        <tr mat-row *matRowDef="let row; columns: userDisplayedColumns"
+                            class="hover:bg-gray-50 transition"></tr>
+
                         <tr class="mat-row" *matNoDataRow>
-                            <td class="mat-cell" colspan="5">No hay usuarios registrados.</td>
+                            <td class="mat-cell p-4 text-center text-gray-500" colspan="5">
+                                No hay usuarios registrados.
+                            </td>
                         </tr>
                     </table>
                 </div>
             </mat-card-content>
         </mat-card>
 
-        <mat-card class="incidence-assignment-card">
-            <mat-card-header>
-                <mat-card-title>Asignación de Tickets</mat-card-title>
-                <mat-card-subtitle>Tickets sin asignar o en proceso.</mat-card-subtitle>
-                    <button mat-icon-button (click)="loadIncidences()" style="margin-left: auto;">
-                        <mat-icon>refresh</mat-icon>
-                    </button>
+
+
+
+        <!-- ========================= -->
+        <!--   ASIGNACIÓN DE TICKETS   -->
+        <!-- ========================= -->
+        <mat-card class="incidence-assignment-card shadow-lg rounded-xl bg-white p-6">
+
+            <mat-card-header class="flex items-center gap-4">
+                <div>
+                    <mat-card-title class="text-gray-700 text-lg font-semibold">
+                        Asignación de Tickets
+                    </mat-card-title>
+                    <mat-card-subtitle class="text-gray-500">
+                        Tickets sin asignar o en proceso.
+                    </mat-card-subtitle>
+                </div>
+
+                <button mat-icon-button 
+                        class="ml-auto hover:bg-gray-200 rounded-full"
+                        (click)="loadIncidences()">
+                    <mat-icon>refresh</mat-icon>
+                </button>
             </mat-card-header>
+
             <mat-card-content>
-                <div class="table-container">
-                    <table mat-table [dataSource]="incidenceDataSource" class="full-width-table">
+
+                <div class="overflow-x-auto border border-gray-300 rounded-lg shadow-inner">
+                    
+                    <table mat-table [dataSource]="incidenceDataSource" 
+                           class="w-full divide-y divide-gray-300">
 
                         <ng-container matColumnDef="id">
-                            <th mat-header-cell *matHeaderCellDef> ID </th>
-                            <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+                            <th mat-header-cell *matHeaderCellDef class="bg-gray-100 p-3 font-semibold">
+                                ID
+                            </th>
+                            <td mat-cell *matCellDef="let element" class="p-3">
+                                {{ element.id }}
+                            </td>
                         </ng-container>
+
                         <ng-container matColumnDef="title">
-                            <th mat-header-cell *matHeaderCellDef> Título </th>
-                            <td mat-cell *matCellDef="let element"> {{element.title}} </td>
+                            <th mat-header-cell *matHeaderCellDef class="bg-gray-100 p-3 font-semibold">
+                                Título
+                            </th>
+                            <td mat-cell *matCellDef="let element" class="p-3">
+                                {{ element.title }}
+                            </td>
                         </ng-container>
+
                         <ng-container matColumnDef="client">
-                            <th mat-header-cell *matHeaderCellDef> Cliente </th>
-                            <td mat-cell *matCellDef="let element"> {{element.clientName}} </td>
+                            <th mat-header-cell *matHeaderCellDef class="bg-gray-100 p-3 font-semibold">
+                                Cliente
+                            </th>
+                            <td mat-cell *matCellDef="let element" class="p-3">
+                                {{ element.clientName }}
+                            </td>
                         </ng-container>
-    
+
                         <ng-container matColumnDef="technician">
-                            <th mat-header-cell *matHeaderCellDef> Técnico Asignado </th>
-                            <td mat-cell *matCellDef="let element"> {{element.technicianName}} </td>
+                            <th mat-header-cell *matHeaderCellDef class="bg-gray-100 p-3 font-semibold">
+                                Técnico Asignado
+                            </th>
+                            <td mat-cell *matCellDef="let element" class="p-3">
+                                {{ element.technicianName }}
+                            </td>
                         </ng-container>
 
                         <ng-container matColumnDef="status">
-                            <th mat-header-cell *matHeaderCellDef> Estado </th>
-                            <td mat-cell *matCellDef="let element"> {{element.status}} </td>
+                            <th mat-header-cell *matHeaderCellDef class="bg-gray-100 p-3 font-semibold">
+                                Estado
+                            </th>
+                            <td mat-cell *matCellDef="let element" class="p-3">
+                                {{ element.status }}
+                            </td>
                         </ng-container>
+
                         <ng-container matColumnDef="priority">
-                            <th mat-header-cell *matHeaderCellDef> Prioridad </th>
-                            <td mat-cell *matCellDef="let element"> {{element.priority}} </td>
+                            <th mat-header-cell *matHeaderCellDef class="bg-gray-100 p-3 font-semibold">
+                                Prioridad
+                            </th>
+                            <td mat-cell *matCellDef="let element" class="p-3">
+                                {{ element.priority }}
+                            </td>
                         </ng-container>
 
                         <ng-container matColumnDef="assign">
-                            <th mat-header-cell *matHeaderCellDef> Asignar </th>
-                            <td mat-cell *matCellDef="let element">
+                            <th mat-header-cell *matHeaderCellDef class="bg-gray-100 p-3 font-semibold">
+                                Asignar
+                            </th>
+                            <td mat-cell *matCellDef="let element" class="p-3">
+
                                 @if (element.status === 'OPEN' || element.status === 'PENDING') {
-                                    <mat-form-field appearance="fill" style="width: 120px; margin-right: 10px;">
-                                        <mat-label>Seleccionar Técnico</mat-label>
+
+                                    <mat-form-field appearance="fill" class="w-40 mr-3">
+                                        <mat-label>Técnico</mat-label>
                                         <mat-select [(value)]="selectedTechnicians[element.id]">
                                             @for (tech of technicians; track tech.id) {
                                                 <mat-option [value]="tech.id">
@@ -122,32 +232,55 @@
                                         </mat-select>
                                     </mat-form-field>
 
-                                    <button mat-mini-fab color="accent" [disabled]="!selectedTechnicians[element.id]" (click)="assignIncident(element.id)">
+                                    <button mat-mini-fab color="accent"
+                                            class="bg-emerald-700 hover:bg-emerald-800 transition shadow"
+                                            [disabled]="!selectedTechnicians[element.id]"
+                                            (click)="assignIncident(element.id)">
                                         <mat-icon>send</mat-icon>
                                     </button>
+
                                 } @else {
                                     <mat-icon color="primary">done_all</mat-icon>
                                 }
+
                             </td>
                         </ng-container>
 
                         <tr mat-header-row *matHeaderRowDef="incidenceDisplayedColumns"></tr>
-                        <tr mat-row *matRowDef="let row; columns: incidenceDisplayedColumns;"></tr>
+                        <tr mat-row *matRowDef="let row; columns: incidenceDisplayedColumns"
+                            class="hover:bg-gray-50 transition"></tr>
+
                         <tr class="mat-row" *matNoDataRow>
-                            <td class="mat-cell" colspan="7">No hay incidencias registradas.</td>
+                            <td class="mat-cell p-4 text-center text-gray-500" colspan="7">
+                                No hay incidencias registradas.
+                            </td>
                         </tr>
+
                     </table>
                 </div>
+
             </mat-card-content>
         </mat-card>
 
-        <mat-card class="stats-chart-card">
+
+
+
+        <!-- ========================= -->
+        <!--    GRÁFICA DE STATS       -->
+        <!-- ========================= -->
+        <mat-card class="stats-chart-card shadow-lg rounded-xl bg-white p-6">
+
             <mat-card-header>
-                <mat-card-title>Rendimiento por Técnico</mat-card-title>
-                <mat-card-subtitle>Incidencias asignadas vs. Técnicos.</mat-card-subtitle>
+                <mat-card-title class="text-gray-700 text-lg font-semibold">
+                    Rendimiento por Técnico
+                </mat-card-title>
+                <mat-card-subtitle class="text-gray-500">
+                    Incidencias asignadas vs. Técnicos.
+                </mat-card-subtitle>
             </mat-card-header>
-            <mat-card-content>
-                <div class="chart-wrapper">
+
+            <mat-card-content class="flex justify-center items-center">
+                <div class="chart-wrapper w-full max-h-[400px] flex justify-center items-center">
                     <canvas baseChart
                         [data]="barChartData"
                         [options]="barChartOptions"
@@ -155,7 +288,8 @@
                     </canvas>
                 </div>
             </mat-card-content>
+
         </mat-card>
-        
+
     </div>
 </div>

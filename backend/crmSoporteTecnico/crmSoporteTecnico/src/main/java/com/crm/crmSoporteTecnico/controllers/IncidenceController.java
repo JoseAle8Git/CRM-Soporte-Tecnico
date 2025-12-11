@@ -104,7 +104,7 @@ public class IncidenceController {
     public ResponseEntity<List<IncidenceDashboardDTO>> getIncidencesByClient(@PathVariable Long id) {
 
         //  USAMOS EL METODO NUEVO CON EL GUIÓN BAJO
-        List<Incidence> incidences = incidenceRepository.findByClientId(id);
+        List<Incidence> incidences = incidenceRepository.findByClient_Id(id);
 
         // Convertimos a DTO
         List<IncidenceDashboardDTO> dtos = incidences.stream()

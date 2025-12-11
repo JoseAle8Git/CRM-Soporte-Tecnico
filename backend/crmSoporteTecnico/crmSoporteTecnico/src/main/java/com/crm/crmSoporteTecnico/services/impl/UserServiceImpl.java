@@ -64,7 +64,7 @@ public class UserServiceImpl implements IUserService {
         Client newClient = null;
         if(request.roleName().equalsIgnoreCase("CLIENT")) {
             if(clientRepository.existsByCif(request.cif())) {
-                throw new IllegalArgumentException("El ncif de la empresa ya existe.");
+                throw new IllegalArgumentException("El cif de la empresa ya existe.");
             }
 
             newClient = new Client(
@@ -163,6 +163,7 @@ public class UserServiceImpl implements IUserService {
                 user.getTelephone(),
                 null,
                 user.getRol().getName(),
+                null,
                 null,
                 null,
                 null

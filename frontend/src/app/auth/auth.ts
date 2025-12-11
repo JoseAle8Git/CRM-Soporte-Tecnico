@@ -14,6 +14,7 @@ export interface AuthResponse {
   userId: number;
   username: string;
   role: string;
+  clientId: number;
 }
 
 @Injectable({
@@ -57,7 +58,7 @@ export class Auth {
   }
 
   logout(): void {
-    this.http.post(`${API_URL}/logout`, {}, { withCredentials: true }).subscribe({
+    this.http.post(`${API_URL}/logout`, {}, { withCredentials: true, responseType: 'text' as 'json' }).subscribe({
       next: () => {
         this.currentUser = null;
         localStorage.removeItem(this.USER_KEY);
@@ -83,12 +84,17 @@ export class Auth {
   get currentUserId(): number | null {
 
     if (!this.currentUser) {
-      const stored = localStorage.getItem('currentUser'); 
+      const stored = localStorage.getItem('currentUser');
       if (stored) {
         this.currentUser = JSON.parse(stored);
       }
     }
     return this.currentUser ? this.currentUser.userId : null;
   }
-
+  getClientId(): number | null {
+    if (!this.currentUser) {
+      this.loadUserFromStorage();
+    }
+    return this.currentUser ? this.currentUser.clientId : null;
+  }
 }

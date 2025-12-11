@@ -1,55 +1,94 @@
-<div class="login-container">
+<div class="min-h-screen w-full flex flex-col bg-neutral-100">
 
-    <mat-toolbar color="primary" class="top-bar">
-        <span class="spacer"></span>
-        <button mat-button routerLink="/store">
+    <!-- NAVBAR -->
+    <mat-toolbar 
+        color="primary"
+        class="w-full flex justify-end shadow px-6 py-3 bg-white border-b border-neutral-200">
+
+        <button 
+            mat-button 
+            routerLink="/store"
+            class="flex items-center gap-1 text-neutral-700 hover:text-black transition">
             <mat-icon>store</mat-icon>
             Tienda
         </button>
     </mat-toolbar>
 
-    <mat-card class="login-card">
-        <mat-card-header>
-            <mat-card-title>Acceso CRM Soporte</mat-card-title>
-        </mat-card-header>
-        
-        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-            
-            <mat-card-content class="login-content">
-                
-                <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>Usuario</mat-label>
-                    <input matInput formControlName="username" placeholder="Tu nombre de usuario">
-                    @if (loginForm.get('username')?.hasError('required')) {
-                        <mat-error>El usuario es obligatorio.</mat-error>
-                    }
-                </mat-form-field>
-                
-                <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>Contraseña</mat-label>
-                    <input matInput type="password" formControlName="password" placeholder="Tu contraseña">
-                    @if (loginForm.get('password')?.hasError('required')) {
-                        <mat-error>La contraseña es obligatoria.</mat-error>
-                    }
-                </mat-form-field>
+    <!-- LOGIN CENTERED -->
+    <div class="flex flex-1 items-center justify-center px-4">
 
-                @if (errorMessage) {
-                    <div class="error-message">{{ errorMessage }}</div>
-                }
-            
-            </mat-card-content>
+        <mat-card 
+            class="w-full max-w-md shadow-lg rounded-2xl bg-white border border-neutral-200">
 
-            <mat-card-actions class="login-actions">
-                <button 
-                    mat-raised-button 
-                    color="primary" 
-                    type="submit" 
-                    [disabled]="loginForm.invalid">
-                    Iniciar Sesión
-                </button>
-            </mat-card-actions>
-        
-        </form>
-    </mat-card>
+            <mat-card-header class="text-center py-3">
+                <mat-card-title class="text-2xl font-semibold text-neutral-800">
+                    Acceso CRM Soporte
+                </mat-card-title>
+            </mat-card-header>
+            
+            <form 
+                [formGroup]="loginForm" 
+                (ngSubmit)="onSubmit()"
+                class="flex flex-col gap-4">
+
+                <mat-card-content class="flex flex-col gap-4 px-4 pb-2">
+
+                    <!-- Usuario -->
+                    <mat-form-field class="w-full block hover:opacity-95">
+                        <mat-label class="text-neutral-600">Usuario</mat-label>
+                        <input 
+                            matInput 
+                            formControlName="username" 
+                            placeholder="Tu nombre de usuario"
+                            class="text-neutral-800">
+                        @if (loginForm.get('username')?.hasError('required')) {
+                            <mat-error class="text-sm text-red-500">
+                                El usuario es obligatorio.
+                            </mat-error>
+                        }
+                    </mat-form-field>
+
+                    <!-- Contraseña -->
+                    <mat-form-field class="w-full block hover:opacity-95">
+                        <mat-label class="text-neutral-600">Contraseña</mat-label>
+                        <input 
+                            matInput 
+                            type="password" 
+                            formControlName="password" 
+                            placeholder="Tu contraseña"
+                            class="text-neutral-800">
+                        @if (loginForm.get('password')?.hasError('required')) {
+                            <mat-error class="text-sm text-red-500">
+                                La contraseña es obligatoria.
+                            </mat-error>
+                        }
+                    </mat-form-field>
+
+                    <!-- Error global -->
+                    @if (errorMessage) {
+                        <div class="text-red-500 font-medium text-center">
+                            {{ errorMessage }}
+                        </div>
+                    }
+
+                </mat-card-content>
+
+                <!-- Submit -->
+                <mat-card-actions class="flex justify-center pb-4">
+                    <button 
+                        mat-raised-button 
+                        color="primary" 
+                        type="submit"
+                        class="px-6 py-2 bg-blue-500 text-white font-semibold shadow-sm hover:bg-blue-600 hover:shadow transition rounded-md disabled:opacity-50"
+                        [disabled]="loginForm.invalid">
+                        Iniciar Sesión
+                    </button>
+                </mat-card-actions>
+
+            </form>
+
+        </mat-card>
+
+    </div>
 
 </div>

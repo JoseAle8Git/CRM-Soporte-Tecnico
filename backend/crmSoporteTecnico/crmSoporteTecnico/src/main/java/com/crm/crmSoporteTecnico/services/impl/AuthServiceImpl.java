@@ -31,6 +31,7 @@ public class AuthServiceImpl implements IAuthService {
 
     /**
      * Implementación de la lógica de autenticación.
+     *
      * @param username
      * @param rawPassword
      * @return
@@ -39,9 +40,9 @@ public class AuthServiceImpl implements IAuthService {
     public AppUser authenticate(String username, String rawPassword) {
         Optional<AppUser> userOpt = userRepository.findByUsername(username);
 
-        if(userOpt.isPresent()) {
+        if (userOpt.isPresent()) {
             AppUser user = userOpt.get();
-            if(passwordEncoder.matches(rawPassword, user.getPassword())) {
+            if (passwordEncoder.matches(rawPassword, user.getPassword())) {
                 return user; // --> Autenticación exitosa
             }
         }
@@ -50,6 +51,7 @@ public class AuthServiceImpl implements IAuthService {
 
     /**
      * Implementación de la generación de JWT.
+     *
      * @param username
      * @return
      */
@@ -58,12 +60,19 @@ public class AuthServiceImpl implements IAuthService {
         Instant now = Instant.now();
         long expiry = 3600L; // --> 1 hora de expiración.
 
+// 1. Recuperamos el usuario COMPLETO primero
+        AppUser user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new BadCredentialsException("Usuario no encontrado"));
+
+        // 2. Preparamos el ID del cliente (con seguridad por si es null)
+        Long clientId = (user.getClient() != null) ? user.getClient().getId() : null;
+
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("self")
                 .issuedAt(now)
                 .expiresAt(now.plusSeconds(expiry))
                 .subject(username)
-                .claim("role", getUserRole(username))
+                .claim("role", user.getRol().getName())
                 .build();
 
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
@@ -71,6 +80,7 @@ public class AuthServiceImpl implements IAuthService {
 
     /**
      * Metodo auxiliar para obtener el rol.
+     *
      * @param username
      * @return
      */
