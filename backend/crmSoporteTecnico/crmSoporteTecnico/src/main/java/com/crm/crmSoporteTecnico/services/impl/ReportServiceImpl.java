@@ -39,9 +39,9 @@ public class ReportServiceImpl implements IReportService {
     private final INotificationService notificationService;
 
     private static final Map<String, Double> PACKAGES_PRICE = Map.of(
-            "ESENCIAL", 99.0,
-            "PROFESIONAL", 299.0,
-            "CORPORATIVO", 500.0
+            "Plan Esencial", 99.0,
+            "Plan Profesional", 299.0,
+            "Plan Corporativo", 499.0
     );
 
     private static final String DESTINATION_EMAIL ="crmdmndmn@gmail.com";
