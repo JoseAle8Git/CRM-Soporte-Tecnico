@@ -134,11 +134,6 @@ public class IncidenceServiceImpl implements IIncidenceService {
 
         incidence.setStatus(newStatus);
 
-        // Si el técnico resuelve o cierra la incidencia, registramos fecha de finalización.
-        if (newStatus == IncidenceStatus.RESOLVED || newStatus == IncidenceStatus.CLOSED) {
-            incidence.setCloseDate(LocalDateTime.now());
-        }
-
         Incidence updated = incidenceRepository.save(incidence);
 
         return IncidenceDashboardDTO.fromIncidence(updated);
@@ -176,10 +171,6 @@ public class IncidenceServiceImpl implements IIncidenceService {
         }
 
         incidence.setStatus(newStatus);
-
-        if (newStatus == IncidenceStatus.RESOLVED || newStatus == IncidenceStatus.CLOSED) {
-            incidence.setCloseDate(LocalDateTime.now());
-        }
 
         Incidence updated = incidenceRepository.save(incidence);
 

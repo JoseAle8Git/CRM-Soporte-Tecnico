@@ -1,58 +1,122 @@
-<h2>Mis incidencias</h2>
+<mat-toolbar 
+  color="primary"
+  class="flex justify-between items-center px-6 py-3 shadow-md bg-slate-800 text-white">
 
-<table>
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Título</th>
-      <th>Estado</th>
-      <th>Actualizar Estado</th>
-    </tr>
-  </thead>
+  <span class="text-xl font-bold tracking-wide">
+    TECHNICIAN DASHBOARD
+  </span>
 
-  <tbody>
-    @for (inc of incidences; track inc.id) {
-      <tr>
-        <td>{{ inc.id }}</td>
-        <td>{{ inc.title }}</td>
-        <td>{{ inc.status }}</td>
-        <td>
-          <select [(ngModel)]="inc.status"
-                  (change)="updateStatus(inc.id, inc.status)">
-            <option value="OPEN">Abierta</option>
-            <option value="PENDING">Pendiente</option>
-            <option value="IN_PROGRESS">En progreso</option>
-            <option value="RESOLVED">Resuelta</option>
-            <option value="CLOSED">Cerrada</option>
-          </select>
-        </td>
-      </tr>
-    }
-  </tbody>
-</table>
+  <button 
+    mat-icon-button 
+    (click)="onLogout()" 
+    class="hover:bg-white/10 rounded-full transition">
+    <mat-icon>logout</mat-icon>
+  </button>
+</mat-toolbar>
 
-<h2>Mis estadísticas</h2>
 
-@if (stats) {
-  <div>
-    <p>Abiertas: {{ stats.open }}</p>
-    <p>Pendientes: {{ stats.pending }}</p>
-    <p>En progreso: {{ stats.inProgress }}</p>
-    <p>Resueltas: {{ stats.resolved }}</p>
-    <p>Cerradas: {{ stats.closed }}</p>
+<!-- CONTENIDO PRINCIPAL -->
+<div class="max-w-6xl mx-auto px-4 py-10 space-y-10">
+
+  <!-- Título -->
+  <h2 class="text-3xl font-bold text-gray-800">Mis incidencias</h2>
+
+  <!-- Tabla de incidencias -->
+  <div class="overflow-x-auto shadow-lg rounded-lg border border-gray-200">
+    <table class="min-w-full bg-white text-sm text-gray-700">
+      <thead class="bg-gray-100 text-gray-700 uppercase text-xs font-semibold">
+        <tr>
+          <th class="px-4 py-3 text-left">ID</th>
+          <th class="px-4 py-3 text-left">Título</th>
+          <th class="px-4 py-3 text-left">Estado</th>
+          <th class="px-4 py-3 text-left">Actualizar Estado</th>
+        </tr>
+      </thead>
+
+      <tbody class="divide-y divide-gray-200">
+        @for (inc of incidences; track inc.id) {
+          <tr class="hover:bg-gray-50 transition">
+            <td class="px-4 py-3">{{ inc.id }}</td>
+            <td class="px-4 py-3 font-medium">{{ inc.title }}</td>
+
+            <!-- Badge -->
+            <td class="px-4 py-3">
+              <span
+                class="px-3 py-1 rounded-full text-xs font-semibold"
+                [ngClass]="{
+                  'bg-blue-100 text-blue-700': inc.status === 'OPEN',
+                  'bg-yellow-100 text-yellow-700': inc.status === 'PENDING',
+                  'bg-purple-100 text-purple-700': inc.status === 'IN_PROGRESS',
+                  'bg-green-100 text-green-700': inc.status === 'RESOLVED',
+                  'bg-gray-300 text-gray-700': inc.status === 'CLOSED'
+                }"
+              >
+                {{ inc.status }}
+              </span>
+            </td>
+
+            <!-- Selector -->
+            <td class="px-4 py-3">
+              <select
+                class="px-3 py-2 border rounded-md bg-white text-gray-700 shadow-sm
+                       focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+                [(ngModel)]="inc.status"
+                (change)="updateStatus(inc.id, inc.status)"
+              >
+                <option value="OPEN">Abierta</option>
+                <option value="PENDING">Pendiente</option>
+                <option value="IN_PROGRESS">En progreso</option>
+                <option value="RESOLVED">Resuelta</option>
+                <option value="CLOSED">Cerrada</option>
+              </select>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
   </div>
-} @else {
-  <p>Cargando estadísticas...</p>
-}
-<h2>Gráfico de mis incidencias</h2>
 
-@if (chartData.datasets[0].data.length > 0) {
-  <div style="max-width: 450px;">
-    <canvas
-      baseChart
-      [data]="chartData"
-      [type]="chartType">
-    </canvas>
+  <!-- Estadísticas -->
+  <h2 class="text-3xl font-bold text-gray-800">Mis estadísticas</h2>
+
+  @if (stats) {
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+
+      <div class="p-4 bg-white shadow rounded-lg text-center">
+        <p class="text-gray-500 text-sm">Abiertas</p>
+        <p class="text-2xl font-bold text-blue-600">{{ stats.open }}</p>
+      </div>
+
+      <div class="p-4 bg-white shadow rounded-lg text-center">
+        <p class="text-gray-500 text-sm">Pendientes</p>
+        <p class="text-2xl font-bold text-yellow-600">{{ stats.pending }}</p>
+      </div>
+
+      <div class="p-4 bg-white shadow rounded-lg text-center">
+        <p class="text-gray-500 text-sm">En progreso</p>
+        <p class="text-2xl font-bold text-purple-600">{{ stats.inProgress }}</p>
+      </div>
+
+      <div class="p-4 bg-white shadow rounded-lg text-center">
+        <p class="text-gray-500 text-sm">Resueltas</p>
+        <p class="text-2xl font-bold text-green-600">{{ stats.resolved }}</p>
+      </div>
+
+      <div class="p-4 bg-white shadow rounded-lg text-center">
+        <p class="text-gray-500 text-sm">Cerradas</p>
+        <p class="text-2xl font-bold text-gray-600">{{ stats.closed }}</p>
+      </div>
+
+    </div>
+  }
+  @else {
+    <p class="text-gray-500">Cargando estadísticas...</p>
+  }
+
+  <!-- Gráfico -->
+  <h2 class="text-3xl font-bold text-gray-800">Gráfico de mis incidencias</h2>
+
+  <div class="max-w-lg bg-white shadow rounded-lg p-6">
+    <canvas baseChart [data]="chartData" [type]="chartType"></canvas>
   </div>
-}
-
+</div>

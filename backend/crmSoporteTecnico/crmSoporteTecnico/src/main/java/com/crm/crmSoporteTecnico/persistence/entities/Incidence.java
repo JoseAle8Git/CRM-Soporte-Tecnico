@@ -39,8 +39,8 @@ public class Incidence {
     @Column(name = "creation_date", nullable = false)
     private LocalDateTime creationDate = LocalDateTime.now();
 
-    @Column(name = "close_date")
-    private LocalDateTime closeDate;
+    @Column(name = "assignment_date")
+    private LocalDateTime assignmentDate;
 
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = false)
