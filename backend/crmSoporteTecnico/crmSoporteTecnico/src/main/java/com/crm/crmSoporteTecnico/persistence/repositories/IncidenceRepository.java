@@ -21,6 +21,8 @@ public interface IncidenceRepository extends JpaRepository<Incidence, Long> {
     List<Incidence> findByClientId(Long clientId);
     List<Incidence> findByClient_Id(Long clientId);
 
+    // obtener todas las incidencias asignadas a un técnico por su ID
+    List<Incidence> findByTechnicianId(Long technicianId);
     /**
      * Verifica si existe alguna incidencia asignada a ese técnico.
      * @param id

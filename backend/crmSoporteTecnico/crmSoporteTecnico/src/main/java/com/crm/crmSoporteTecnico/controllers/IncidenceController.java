@@ -1,16 +1,22 @@
 package com.crm.crmSoporteTecnico.controllers;
 
+import com.crm.crmSoporteTecnico.persistence.entities.AppUser;
 import com.crm.crmSoporteTecnico.persistence.entities.Incidence;
+import com.crm.crmSoporteTecnico.persistence.enums.IncidenceStatus;
 import com.crm.crmSoporteTecnico.persistence.repositories.UserRepository;
 import com.crm.crmSoporteTecnico.services.IIncidenceService;
+import com.crm.crmSoporteTecnico.services.IUserService;
+import com.crm.crmSoporteTecnico.services.impl.UserServiceImpl;
 import com.crm.crmSoporteTecnico.services.models.dtos.IncidenceAssignmentRequest;
 import com.crm.crmSoporteTecnico.services.models.dtos.IncidenceDashboardDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.crm.crmSoporteTecnico.persistence.repositories.IncidenceRepository;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,7 +33,8 @@ public class IncidenceController {
 
     private final IIncidenceService incidenceService;
 
-    public IncidenceController(IIncidenceService incidenceService) {
+
+    public IncidenceController(IIncidenceService incidenceService, IUserService userService) {
         this.incidenceService = incidenceService;
     }
 
@@ -106,5 +113,56 @@ public class IncidenceController {
 
         return ResponseEntity.ok(dtos);
     }
+    @PreAuthorize("hasAuthority('TECHNICIAN')")
+    @GetMapping("/technician/me")
+    public ResponseEntity<List<IncidenceDashboardDTO>> getMyIncidences(Authentication authentication) {
+
+        // 1. Obtener el username del JWT
+        String username = authentication.getName();
+
+        // 2. Buscar al AppUser real por username
+        AppUser technician = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        // 3. Obtener su ID
+        Long technicianId = technician.getId();
+
+        // 4. Devolver las incidencias del técnico
+        List<IncidenceDashboardDTO> incidences =
+                incidenceService.findIncidencesByTechnician(technicianId);
+
+        return ResponseEntity.ok(incidences);
+    }
+
+    @PreAuthorize("hasAuthority('TECHNICIAN')")
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<?> updateIncidenceStatus(
+            @PathVariable Long id,
+            @RequestBody String newStatus,
+            Authentication authentication) {
+
+        try {
+            // 1. Obtener el username del técnico autenticado
+            String username = authentication.getName();
+
+            // 2. Recuperar AppUser real
+            AppUser technician = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+            // 3. Convertir String → Enum
+            IncidenceStatus statusEnum = IncidenceStatus.valueOf(newStatus.toUpperCase());
+
+            // 4. Llamar al servicio para actualizar
+            IncidenceDashboardDTO updated =
+                    incidenceService.updateIncidenceStatus(id, statusEnum, technician.getId());
+
+            // 5. Devolver éxito
+            return ResponseEntity.ok(updated);
+
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+    }
+
 
 }

@@ -80,7 +80,6 @@ CREATE TABLE incidence (
     description TEXT,
     -- Crucial para soportes diarios y métricas (TMR).
     creation_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    close_date TIMESTAMP,
     -- Control de flujo (OPEN, IN PROGRESS, RESOLVED, CLOSE).
     status VARCHAR(20) NOT NULL,
     -- (LOW, MEDIUM, HIGH, CRITICAL).
@@ -93,7 +92,8 @@ CREATE TABLE incidence (
     FOREIGN KEY (contact_id) REFERENCES contact(id),
     -- FK 3: Quién está resolviendo (Técnico asignado).
     tech_asigned_id INT,
-    FOREIGN KEY (tech_asigned_id) REFERENCES app_user(id)
+    FOREIGN KEY (tech_asigned_id) REFERENCES app_user(id),
+    assignment_date TIMESTAMP
 );
 
 -- -------------------------------------------------------------------------------------------------------
@@ -116,21 +116,28 @@ CREATE TABLE task (
 );
 
 -- -------------------------------------------------------------------------------------------------------
--- 7. Tabla: log_notification (Auditoría de concurrencia/WebSockets)
--- Necesaria para el requerimiento obligatorio de concurrencia y auditoría.
+-- 7. Tabla: report_log (Auditoría de concurrencia/WebSockets)
+-- Necesaria para el requerimiento obligatori\o de concurrencia y auditoría.
 -- -------------------------------------------------------------------------------------------------------
 
-CREATE TABLE log_notification (
+CREATE TABLE report_log (
     id BIGSERIAL PRIMARY KEY,
-    -- Fecha exacta de cuándo ocurrió el evento o se envió el correo.
-    register_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    -- Tipo de evento (EMAIL_INCIDENCE, WEB_SOCKET_UPDATE, STATUS_CHANGE).
-    event_type VARCHAR(50) NOT NULL,
-    message TEXT,
-    -- FK 1: A qué ticket de soporte se refiere el log.
-    incidence_id INT,
-    FOREIGN KEY (incidence_id) REFERENCES incidence(id),
-    -- FK 2: Quién (o qué proceso programado) generó el evento.
-    user_reponsible_id INT,
-    FOREIGN KEY (user_reponsible_id) REFERENCES user(id)
+    -- Fecha exacta de cuándo ocurrió el evento o se generó el reporte.
+    generation_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    -- Tipo de evento (EMAIL_INCIDENCE, WEB_SOCKET_UPDATE, STATUS_CHANGE, etc.)
+    report_type VARCHAR(50) NOT NULL,
+    -- Información adicional o payload.
+    report_data TEXT,
+    -- Indica si el correo fue enviado correctamente.
+    email_sent BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+CREATE TABLE public.clients_of_clients (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,       -- Nombre del cliente (ej: Panadería Pepe)
+    active BOOLEAN DEFAULT true,      -- Si está activo
+    billing DECIMAL(10, 2),           -- Facturación (Dinero)
+    client_id INTEGER NOT NULL,       -- LA CLAVE: Pertenece a la empresa de Juanito
+    -- Vinculación obligatoria con la tabla client
+    CONSTRAINT fk_client_owner FOREIGN KEY (client_id) REFERENCES public.client (id)
 );

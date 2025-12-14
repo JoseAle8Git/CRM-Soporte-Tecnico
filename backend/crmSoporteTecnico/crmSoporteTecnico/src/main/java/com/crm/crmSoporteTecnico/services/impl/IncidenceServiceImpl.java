@@ -10,14 +10,14 @@ import com.crm.crmSoporteTecnico.persistence.repositories.IncidenceRepository;
 import com.crm.crmSoporteTecnico.persistence.repositories.UserRepository;
 import com.crm.crmSoporteTecnico.services.IIncidenceService;
 import com.crm.crmSoporteTecnico.services.INotificationService;
-import com.crm.crmSoporteTecnico.services.models.dtos.CreateIncidenceDTO;
-import com.crm.crmSoporteTecnico.services.models.dtos.IncidenceAssignmentRequest;
-import com.crm.crmSoporteTecnico.services.models.dtos.IncidenceDashboardDTO;
+import com.crm.crmSoporteTecnico.services.models.dtos.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -66,7 +66,6 @@ public class IncidenceServiceImpl implements IIncidenceService {
         // Actualizar la incidencia.
         incidence.setTechnician(technician);
         incidence.setStatus(IncidenceStatus.IN_PROGRESS);
-        incidence.setAssignmentDate(LocalDateTime.now());
 
         Incidence updatedIncidence = incidenceRepository.save(incidence);
 
@@ -111,6 +110,71 @@ public class IncidenceServiceImpl implements IIncidenceService {
         notificationService.notifyManagerNewIncidence(savedIncidence, request);
 
         return IncidenceDashboardDTO.fromIncidence(savedIncidence);
+    }
+
+    @Override
+    public List<IncidenceDashboardDTO> findIncidencesByTechnician(Long technicianId) {
+        return incidenceRepository.findByTechnicianId(technicianId)
+                .stream()
+                .map(IncidenceDashboardDTO::fromIncidence)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public IncidenceDashboardDTO updateIncidenceStatus(Long incidenceId, IncidenceStatus newStatus, Long technicianId) {
+
+        Incidence incidence = incidenceRepository.findById(incidenceId)
+                .orElseThrow(() -> new IllegalArgumentException("Incidencia no encontrada."));
+
+        if (incidence.getTechnician() == null ||
+                !incidence.getTechnician().getId().equals(technicianId)) {
+            throw new IllegalArgumentException("No tienes permiso para modificar esta incidencia.");
+        }
+
+        incidence.setStatus(newStatus);
+
+        Incidence updated = incidenceRepository.save(incidence);
+
+        return IncidenceDashboardDTO.fromIncidence(updated);
+    }
+
+    @Override
+    public TechnicianPersonalStatsDTO getTechnicianPersonalStats(Long technicianId) {
+
+        List<Incidence> incidences = incidenceRepository.findByTechnicianId(technicianId);
+
+        long open = incidences.stream().filter(i -> i.getStatus() == IncidenceStatus.OPEN).count();
+        long pending = incidences.stream().filter(i -> i.getStatus() == IncidenceStatus.PENDING).count();
+        long inProgress = incidences.stream().filter(i -> i.getStatus() == IncidenceStatus.IN_PROGRESS).count();
+        long resolved = incidences.stream().filter(i -> i.getStatus() == IncidenceStatus.RESOLVED).count();
+        long closed = incidences.stream().filter(i -> i.getStatus() == IncidenceStatus.CLOSED).count();
+
+        return new TechnicianPersonalStatsDTO(open, pending, inProgress, resolved, closed);
+
+    }
+
+    @Override
+    public List<Incidence> findIncidencesForTechnicianEntity(Long technicianId) {
+        return incidenceRepository.findByTechnicianId(technicianId);
+    }
+
+    @Override
+    public TechnicianIncidenceDTO updateIncidenceStatusForTechnician(Long incidenceId, IncidenceStatus newStatus, Long technicianId) {
+
+        Incidence incidence = incidenceRepository.findById(incidenceId)
+                .orElseThrow(() -> new IllegalArgumentException("Incidencia no encontrada"));
+
+        if (incidence.getTechnician() == null ||
+                !incidence.getTechnician().getId().equals(technicianId)) {
+            throw new IllegalArgumentException("No tienes permiso para modificar esta incidencia.");
+        }
+
+        incidence.setStatus(newStatus);
+
+        Incidence updated = incidenceRepository.save(incidence);
+
+        return TechnicianIncidenceDTO.fromIncidence(updated);
     }
 
 

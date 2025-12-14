@@ -170,6 +170,7 @@ public class UserServiceImpl implements IUserService {
         );
     }
 
+
     @Override
     @Transactional(readOnly = true)
     public List<ClientDashboardDTO> getAllClients(Boolean activeFilter, String packageFilter) {
