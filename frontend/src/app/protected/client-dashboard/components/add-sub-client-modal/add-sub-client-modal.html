@@ -1,0 +1,21 @@
+<h2 mat-dialog-title>Nuevo Cliente</h2>
+<mat-dialog-content>
+  <div class="form-container">
+    <mat-form-field appearance="outline">
+      <mat-label>Nombre Empresa</mat-label>
+      <input matInput [(ngModel)]="data.name" placeholder="Ej: Tienda Madrid Centro">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Facturación (€)</mat-label>
+      <input matInput type="number" [(ngModel)]="data.billing">
+    </mat-form-field>
+
+    <mat-checkbox [(ngModel)]="data.active">Activo</mat-checkbox>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Cancelar</button>
+  <button mat-raised-button color="primary" (click)="save()" [disabled]="!data.name">Guardar</button>
+</mat-dialog-actions>

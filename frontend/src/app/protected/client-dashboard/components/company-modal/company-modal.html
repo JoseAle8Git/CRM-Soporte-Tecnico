@@ -15,11 +15,18 @@
     
     <mat-tab label="Facturación y Clientes">
       <div style="margin-top: 15px;">
+
+        <div style="display:flex; justify-content: flex-end; margin-bottom: 10px;">
+            <button mat-flat-button color="primary" (click)="openAddClient()">
+                <mat-icon>add</mat-icon> Añadir Cliente
+            </button>
+        </div>
+
         <table mat-table [dataSource]="data.subClients" class="mat-elevation-z1" style="width: 100%;">
           
           <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef> Cliente </th>
-            <td mat-cell *matCellDef="let c"> <strong>{{ c.company_name }}</strong> </td>
+            <td mat-cell *matCellDef="let c"> <strong>{{ c.name }}</strong> </td>
           </ng-container>
 
           <ng-container matColumnDef="active">

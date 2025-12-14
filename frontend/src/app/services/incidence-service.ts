@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AssignmentRequest, IncidenceDashboard } from '../models/incidence-dashboard.interface';
 
+
 // Para definir qué datos enviamos 
 export interface CreateIncidenceDTO {
   title: string;
