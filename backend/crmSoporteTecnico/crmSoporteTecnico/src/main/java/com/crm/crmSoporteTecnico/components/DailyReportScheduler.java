@@ -13,7 +13,7 @@ public class DailyReportScheduler {
         this.reportService = reportService;
     }
 
-    @Scheduled(cron = "0 52 21,23 * * *")
+    @Scheduled(cron = "0 35 18,23 * * *")
     public void generatedReport() {
         System.out.println("Iniciando generación de reporte diario...");
         reportService.generateAndSendDailyValue();
