@@ -81,4 +81,40 @@ public class ClientController {
         // C. Devolvemos el DTO completo
         return ResponseEntity.ok(UserContextDTO.fromEntity(user));
     }
+
+    // 5. CREAR NUEVO SUB-CLIENTE (Endpoint Nuevo)
+    @PostMapping("/sub-clients")
+    public ResponseEntity<ClientOfClient> createSubClient(
+            @RequestBody com.crm.crmSoporteTecnico.services.models.dtos.CreateSubClientDTO dto) {
+
+        // 1. ¿Quién intenta crear esto? (Seguridad)
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        AppUser currentUser = userRepository.findByUsername(auth.getName())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // 2. ¿A qué empresa pertenece el usuario?
+        Client parentCompany = currentUser.getClient();
+
+        // Si el usuario no tiene empresa asignada, no puede crear sub-clientes
+        if(parentCompany == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        // 3. Crear la entidad ClientOfClient y rellenarla con el DTO
+        ClientOfClient newSubClient = new ClientOfClient();
+
+        newSubClient.setName(dto.name());      // Nombre de la tienda/cliente
+        newSubClient.setBilling(dto.billing()); // Facturación
+        newSubClient.setActive(dto.active() != null ? dto.active() : true); // Activo por defecto
+
+        // 4. LA CLAVE: Lo vinculamos a la empresa del usuario logueado
+        newSubClient.setClient(parentCompany);
+
+        // 5. Guardar en Base de Datos
+        subClientRepo.save(newSubClient);
+
+        return ResponseEntity.ok(newSubClient);
+    }
+
+
 }

@@ -124,17 +124,24 @@ export class ClientDashboard implements OnInit {
     });
   }
 
-  // --- MODAL DETALLES EMPRESA ---
   openDetails() {
-    const company = this.companyData();
+    const company = this.companyData(); // Obtenemos la empresa actual
     if (!company) return;
 
+    // Pedimos datos frescos para abrir el modal
     this.clientService.getUsersByClientId(company.id).subscribe(users => {
       this.clientService.getSubClients(company.id).subscribe(subClients => {
-        this.dialog.open(CompanyModalComponent, {
+
+        const dialogRef = this.dialog.open(CompanyModalComponent, {
           width: '900px',
           data: { company, users, subClients }
         });
+
+        dialogRef.afterClosed().subscribe(() => {
+          console.log("🔄 Cerrando detalles... actualizando gráfico.");
+          this.loadChartMetrics(company.id);
+        });
+
       });
     });
   }
