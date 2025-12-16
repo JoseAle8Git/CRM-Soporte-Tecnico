@@ -1,41 +1,73 @@
 version: '3.8'
 
-# Sección que define los servicios (contenedores) a levantar
 services:
+  # 1. Base de Datos PostgreSQL
   db-postgres:
-    # 1. Imagen a utilizar: PostgreSQL 16 (una versión estable y reciente)
     image: postgres:17
-    
-    # 2. Reinicio: Asegura que el contenedor intente reiniciarse si falla
     restart: always
-
-    # 3. Variables de Entorno: Configuración interna del servidor PostgreSQL
     environment:
-      # Nombre de la base de datos a crear
       POSTGRES_DB: crm_soporte_db
-      # Usuario para acceder a la base de datos
       POSTGRES_USER: crm_user
-      # Contraseña para el usuario (¡Cambiar en producción!)
       POSTGRES_PASSWORD: crm_password
-      
-
-    # 4. Mapeo de Puertos: Expone el puerto interno (5432) al puerto externo (5432)
-    #    Esto permite que tu máquina o herramientas externas se conecten.
+    # [Comentario en español]: Mapeamos el puerto para acceso externo (opcional)
     ports:
       - "5432:5432"
-
-    # 5. Volúmenes: Persistencia de datos.
-    #    Asegura que los datos de la base de datos se guarden en tu máquina local
-    #    incluso si el contenedor se elimina, previniendo la pérdida de datos.
     volumes:
-      # Almacena los datos reales de PostgreSQL
       - db-data:/var/lib/postgresql/data
-      # Ejecuta scripts SQL: Mapea nuestra carpeta de scripts (en el host)
-      # a la carpeta de inicialización de PostgreSQL (/docker-entrypoint-initdb.d).
-      # Cualquier .sql o .sh en esta carpeta se ejecuta al iniciar el contenedor por primera vez.
+      # [Comentario en español]: Asegúrate de que esta ruta sea correcta para tus scripts de migración (Flyway/Liquibase)
       - ./backend/crmSoporteTecnico/crmSoporteTecnico/src/main/resources/db/migration:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crm_user -d crm_soporte_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. Backend (Spring Boot/Java)
+  crm-backend:
+    # [Comentario en español]: Usará el Dockerfile que crearemos en ./backend
+    build:
+      context: ./backend/crmSoporteTecnico/crmSoporteTecnico
+      dockerfile: Dockerfile
+    
+    # [Comentario en español]: Mapeamos el puerto de la API (ej. 8080)
+    ports:
+      - "8080:8080"
       
-# Sección de Volúmenes: Define el volumen persistente (db-data)
+    # [Comentario en español]: Variables de entorno para la conexión a la DB
+    environment:
+      # 🚨 CRÍTICO: Usamos el nombre del servicio ('db-postgres') como host
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db-postgres:5432/crm_soporte_db
+      SPRING_DATASOURCE_USERNAME: crm_user
+      SPRING_DATASOURCE_PASSWORD: crm_password
+      # [Comentario en español]: Configuramos el puerto interno del contenedor
+      SERVER_PORT: 8080
+      
+    # [Comentario en español]: Asegura que el backend espere a que la DB esté lista
+    depends_on:
+      db-postgres:
+        condition: service_healthy
+        
+    restart: always
+
+  # 3. Frontend (Angular)
+  crm-frontend:
+    # [Comentario en español]: Usará el Dockerfile que crearemos en ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      
+    # [Comentario en español]: Mapeamos el puerto web (ej. 4200 o 80 si usamos Nginx)
+    ports:
+      - "4200:80" # Mapeamos 4200 externo al puerto interno 80 (servidor web)
+      
+    # [Comentario en español]: Variables para configuración de la API en Angular (si aplica)
+    environment:
+      # 🚨 CRÍTICO: Apuntamos al backend usando el nombre del servicio 'crm-backend'
+      API_URL: http://crm-backend:8080/sistema/api/v1 
+      
+    restart: always
+
+# Definición de Volúmenes
 volumes:
-  # Volumen para los datos. Docker lo gestiona y lo mantiene separado del código.
   db-data:
+    # [Comentario en español]: Volumen persistente para los datos de PostgreSQL

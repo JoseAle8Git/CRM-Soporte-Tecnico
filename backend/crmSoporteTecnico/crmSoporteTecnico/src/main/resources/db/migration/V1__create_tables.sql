@@ -65,6 +65,7 @@ CREATE TABLE contact (
     position VARCHAR(50) NOT NULL,
     -- Correo clave para el sistema de correos automáticos (concurrencia).
     email VARCHAR(100) unique,
+    telephone VARCHAR(15),
     -- FK: Relación N:1 con client.
     client_id INT NOT NULL,
     FOREIGN KEY (client_id) REFERENCES client(id)
