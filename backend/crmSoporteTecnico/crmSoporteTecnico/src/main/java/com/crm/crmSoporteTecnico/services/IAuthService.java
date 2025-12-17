@@ -22,4 +22,10 @@ public interface IAuthService {
      */
     String generateToken(String username);
 
+    /**
+     * Para invalidar el token correspondiente.
+     * @param token
+     */
+    void invalidateToken(String token);
+
 }

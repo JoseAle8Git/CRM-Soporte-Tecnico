@@ -9,12 +9,12 @@ services:
       POSTGRES_DB: crm_soporte_db
       POSTGRES_USER: crm_user
       POSTGRES_PASSWORD: crm_password
-    # [Comentario en español]: Mapeamos el puerto para acceso externo (opcional)
+    # Mapeamos el puerto para acceso externo (opcional)
     ports:
       - "5432:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
-      # [Comentario en español]: Asegúrate de que esta ruta sea correcta para tus scripts de migración (Flyway/Liquibase)
+      # Asegúrate de que esta ruta sea correcta para tus scripts de migración (Flyway/Liquibase)
       - ./backend/crmSoporteTecnico/crmSoporteTecnico/src/main/resources/db/migration:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U crm_user -d crm_soporte_db"]
@@ -24,25 +24,25 @@ services:
 
   # 2. Backend (Spring Boot/Java)
   crm-backend:
-    # [Comentario en español]: Usará el Dockerfile que crearemos en ./backend
+    # Usará el Dockerfile que crearemos en ./backend
     build:
       context: ./backend/crmSoporteTecnico/crmSoporteTecnico
       dockerfile: Dockerfile
     
-    # [Comentario en español]: Mapeamos el puerto de la API (ej. 8080)
+    # Mapeamos el puerto de la API (ej. 8080)
     ports:
       - "8080:8080"
       
-    # [Comentario en español]: Variables de entorno para la conexión a la DB
+    # Variables de entorno para la conexión a la DB
     environment:
       # 🚨 CRÍTICO: Usamos el nombre del servicio ('db-postgres') como host
       SPRING_DATASOURCE_URL: jdbc:postgresql://db-postgres:5432/crm_soporte_db
       SPRING_DATASOURCE_USERNAME: crm_user
       SPRING_DATASOURCE_PASSWORD: crm_password
-      # [Comentario en español]: Configuramos el puerto interno del contenedor
+      # Configuramos el puerto interno del contenedor
       SERVER_PORT: 8080
       
-    # [Comentario en español]: Asegura que el backend espere a que la DB esté lista
+    # Asegura que el backend espere a que la DB esté lista
     depends_on:
       db-postgres:
         condition: service_healthy
@@ -51,23 +51,30 @@ services:
 
   # 3. Frontend (Angular)
   crm-frontend:
-    # [Comentario en español]: Usará el Dockerfile que crearemos en ./frontend
+    # Usará el Dockerfile que crearemos en ./frontend
     build:
       context: ./frontend
       dockerfile: Dockerfile
       
-    # [Comentario en español]: Mapeamos el puerto web (ej. 4200 o 80 si usamos Nginx)
+    # Mapeamos el puerto web (ej. 4200 o 80 si usamos Nginx)
     ports:
       - "4200:80" # Mapeamos 4200 externo al puerto interno 80 (servidor web)
       
-    # [Comentario en español]: Variables para configuración de la API en Angular (si aplica)
+    # Variables para configuración de la API en Angular (si aplica)
     environment:
       # 🚨 CRÍTICO: Apuntamos al backend usando el nombre del servicio 'crm-backend'
       API_URL: http://crm-backend:8080/sistema/api/v1 
       
     restart: always
 
+  redis:
+    image: redis:alpine
+    container_name: crm-redis
+    restart: always
+    ports:
+      - "6379:6379"
+
 # Definición de Volúmenes
 volumes:
   db-data:
-    # [Comentario en español]: Volumen persistente para los datos de PostgreSQL
+    Volumen persistente para los datos de PostgreSQL

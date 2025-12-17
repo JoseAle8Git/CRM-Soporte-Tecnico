@@ -1,5 +1,6 @@
 package com.crm.crmSoporteTecnico.config;
 
+import com.crm.crmSoporteTecnico.components.JwtBlacklistFilter;
 import com.crm.crmSoporteTecnico.services.IAuthService;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.JWK;
@@ -26,6 +27,7 @@ import org.springframework.security.oauth2.jwt.*;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -50,13 +52,15 @@ import java.util.Collections;
 public class SecurityConfig {
 
     private final RsaKeyProperties rsaKeys;
+    private final JwtBlacklistFilter jwtBlacklistFilter;
 
     /**
      * Inyección de las propiedades de las llaves RSA.
      * @param rsaKeys
      */
-    public SecurityConfig(RsaKeyProperties rsaKeys) {
+    public SecurityConfig(RsaKeyProperties rsaKeys,  JwtBlacklistFilter jwtBlacklistFilter) {
         this.rsaKeys = rsaKeys;
+        this.jwtBlacklistFilter = jwtBlacklistFilter;
     }
 
     /**
@@ -100,6 +104,7 @@ public class SecurityConfig {
         return http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
+                .addFilterBefore(jwtBlacklistFilter, BearerTokenAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(

@@ -3,13 +3,13 @@ package com.crm.crmSoporteTecnico.services.impl;
 import com.crm.crmSoporteTecnico.persistence.entities.AppUser;
 import com.crm.crmSoporteTecnico.persistence.repositories.UserRepository;
 import com.crm.crmSoporteTecnico.services.IAuthService;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -22,11 +22,16 @@ public class AuthServiceImpl implements IAuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtEncoder jwtEncoder;
+    private final JwtDecoder jwtDecoder;
+    private final StringRedisTemplate redisTemplate;
 
-    public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtEncoder jwtEncoder) {
+    public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtEncoder jwtEncoder,
+                           JwtDecoder jwtDecoder, StringRedisTemplate redisTemplate) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtEncoder = jwtEncoder;
+        this.jwtDecoder = jwtDecoder;
+        this.redisTemplate = redisTemplate;
     }
 
     /**
@@ -60,7 +65,7 @@ public class AuthServiceImpl implements IAuthService {
         Instant now = Instant.now();
         long expiry = 3600L; // --> 1 hora de expiración.
 
-// 1. Recuperamos el usuario COMPLETO primero
+        // 1. Recuperamos el usuario COMPLETO primero
         AppUser user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new BadCredentialsException("Usuario no encontrado"));
 
@@ -79,8 +84,27 @@ public class AuthServiceImpl implements IAuthService {
     }
 
     /**
+     * Pilla el token correspondiente.
+     * @param token
+     */
+    @Override
+    public void invalidateToken(String token) {
+        try {
+           Jwt jwt = jwtDecoder.decode(token);
+           Instant expiredAt = jwt.getExpiresAt();
+           if(expiredAt != null) {
+               long remainingTime = Duration.between(Instant.now(), expiredAt).toMillis();
+               if(remainingTime > 0) {
+                   redisTemplate.opsForValue().set(token, "blacklisted", Duration.ofMillis(remainingTime));
+               }
+           }
+        } catch(Exception ex) {
+
+        }
+    }
+
+    /**
      * Metodo auxiliar para obtener el rol.
-     *
      * @param username
      * @return
      */

@@ -5,6 +5,7 @@ import com.crm.crmSoporteTecnico.services.IAuthService;
 import com.crm.crmSoporteTecnico.services.models.dtos.AuthResponse;
 import com.crm.crmSoporteTecnico.services.models.dtos.LoginRequest;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -45,15 +46,11 @@ public class AuthController {
             // Genera el token JWT.
             String token = authService.generateToken(user.getUsername());
 
-            // Crear y configurar la Cookie HttpOnly (Seguridad).
-            Cookie cookie = new Cookie("jwt", token);
-            cookie.setHttpOnly(true); // Esto impide que JavaScript acceda al token (defensa XSS).
-            cookie.setSecure(false); // True si se usa HTTPS (se tiene cambiar en producción).
-            cookie.setMaxAge(3600); // Tiempo de vida de la cookie.
-            cookie.setPath("/"); // Disponible en toda la aplicación.
-
-            // Añadir la cookie a la respuesta HTTP.
-            response.addCookie(cookie);
+            String cookie = String.format(
+                    "jwt=%s; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=3600",
+                    token
+            );
+            response.setHeader("Set-Cookie", cookie);
 
             // Devolver la información no sensible al Frontend.
             AuthResponse authResponse = AuthResponse.fromUser(user);
@@ -70,13 +67,20 @@ public class AuthController {
      * @return
      */
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletResponse response) {
-        // Se crea una cookie expirada para eliminar el JWT del navegador.
-        Cookie cookie = new Cookie("jwt", null);
-        cookie.setMaxAge(0);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        response.addCookie(cookie);
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+        String token = null;
+        if(request.getCookies() != null) {
+            for(Cookie c : request.getCookies()) {
+                token = c.getValue();
+                break;
+            }
+        }
+        if(token != null) {
+            authService.invalidateToken(token);
+        }
+
+        String cookie = "jwt=; Path=/; HttpOnly; SameSite=None; Max-Age=0";
+        response.setHeader("Set-Cookie", cookie);
 
         return ResponseEntity.ok("Sesión cerrada correctamente");
     }
